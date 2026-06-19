@@ -1,8 +1,6 @@
-# 🏦 GXBank Next-Gen
+# 🏦 SentryPay Bank App
 
 **Core Banking Infrastructure & SentryPay Engine**
-
-*The world's first core-embedded real-time subscription firewall — built for the next generation of digital banking.*
  
 ---
 
@@ -19,14 +17,12 @@
 ![Build](https://img.shields.io/badge/Build-Passing-brightgreen?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active_Development-blue?style=flat-square)
 
-
+</div>
 ---
 
 ## Overview
 
-GXBank Next-Gen is a high-performance, full-scale digital banking platform built from the ground up. It fuses a highly responsive modern mobile layer with a robust, ultra-secure legacy financial ledger — delivering seamless retail banking features alongside its flagship capability:
-
-> **SentryPay** — the world's first core-embedded real-time subscription firewall. Users can intercept, freeze, or legally revoke recurring merchant authorizations (e.g. Netflix, Spotify) directly at the ledger authorization level, *before* charges ever reach the card processor network.
+SentryPay Bank App is a digital banking platform that combines a Kotlin/Compose mobile frontend with a GnuCOBOL core ledger backend. Its main distinguishing feature is **SentryPay** — a subscription firewall embedded at the core ledger level, letting users block or revoke recurring merchant charges (e.g. Netflix, Spotify) before they reach the card processor network.
  
 ---
 
@@ -115,7 +111,7 @@ GnuCOBOL engine sidecar implementing flat-byte arrays for calculations, ledger c
 ## Repository Layout
 
 ```
-gxbank-nextgen/
+sentrypay-bank-app/
 │
 ├── gxbank-android/                         # Jetpack Compose Digital Banking App
 │   └── src/main/java/com/example/sentrypaybank/
@@ -149,4 +145,7 @@ gxbank-nextgen/
 | `sentrypay.subscription.validation` | Merchant authorization intercept and validation pipeline |
  
 ---
+ 
+ 
+ 
 
