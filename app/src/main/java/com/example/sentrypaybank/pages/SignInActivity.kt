@@ -2,9 +2,12 @@ package com.example.sentrypaybank.pages
 
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -24,18 +27,30 @@ fun SignInActivity(
     onNavigateToHome:() -> Unit = {}
 
 ){
-    Box(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
             .clickable{onNavigateToHome()},
-        contentAlignment = Alignment.Center
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+
     ){
         Text(
             text = "This is a sign in page",
             style = MaterialTheme.typography.headlineMedium
 
         )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+
+        Button(
+            onClick = {onNavigateToHome()},
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Go back to home")
+        }
     }
 
 
