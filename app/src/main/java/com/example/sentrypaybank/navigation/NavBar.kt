@@ -7,4 +7,5 @@ sealed class NavBar(val route : String){
     object Signin : NavBar("signin")
     object HomePage : NavBar("home")
 
+
 }

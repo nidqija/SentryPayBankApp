@@ -16,6 +16,7 @@ import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.sentrypaybank.navigation.NavBar
+import com.example.sentrypaybank.pages.CoverPageActivity
 import com.example.sentrypaybank.pages.HomeActivity
 import com.example.sentrypaybank.pages.SignInActivity
 
@@ -56,17 +57,25 @@ fun SetryPayAppNavigation(modifier: Modifier = Modifier){
     // connects the navcontroller to the nav graph destinations
     NavHost(
        navController = navController,
-        startDestination = NavBar.Signin.route,
+        startDestination = "cover_page",
         modifier = modifier
 
     ) {
         // destination route for sign in screen
-        composable(NavBar.Signin.route){
+        composable("cover_page"){
+            CoverPageActivity(
+                onNavigatetoSignIn = {
+                    navController.navigate(NavBar.Signin.route){
+                        popUpTo("cover_page"){inclusive = true}
+                    }
+                }
+            )
+        }
+
+        composable(NavBar.Signin.route) { // Ensure this matches what navController calls!
             SignInActivity(
                 onNavigateToHome = {
-                    // triggered when sign in is successful , navigate user to home screen
                     navController.navigate(NavBar.HomePage.route)
-
                 }
             )
         }
