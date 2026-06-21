@@ -39,15 +39,18 @@ import com.example.sentrypaybank.R
 fun CoverPageActivity(onNavigatetoSignIn: () -> Unit) {
     // Automatically redirect after 2.5 seconds
 
+
+    // state to trigger the fade in animation once the composition launches
     var startAnimation by remember { mutableStateOf(false) }
 
+    // runs side effects when entering the composition tree
+    // key 1 ensures it only triggers once per lifecycle ( startup )
     LaunchedEffect(key1 = true) {
-        startAnimation = true
-        delay(5000)
-        onNavigatetoSignIn()
+        startAnimation = true // toggle state to start the animation
+        delay(5000) // delay the transition
+        onNavigatetoSignIn()  // auto navigate to sign n
     }
 
-    // GX Bank Vibe: Ultra-deep premium dark backdrop gradient
     val gxBankBackgroundGradient = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF0B0F19), // Deepest dark slate/black
@@ -70,6 +73,7 @@ fun CoverPageActivity(onNavigatetoSignIn: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
 
+        // added container to handling core branding layout fading in
         AnimatedVisibility(
             visible = startAnimation,
             enter = fadeIn(animationSpec = tween(durationMillis = 1500))
@@ -78,6 +82,7 @@ fun CoverPageActivity(onNavigatetoSignIn: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(horizontal = 45.dp)
         ) {
+            // add brand logo
             Image(
                 painter = painterResource(id = R.drawable.sentrypay_logo),
                 contentDescription = "Sentry Pay Logo",
