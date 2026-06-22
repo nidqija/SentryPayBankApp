@@ -70,7 +70,7 @@ fun HomeActivity(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenActivity(){
-    // wrap the home page with sentrypaybank theme ( Material 3 )
+    // wrap the home page with sentrypaybank theme ( Material 3 )   
     SentryPayBankTheme() {
         HomeActivity()
     }
