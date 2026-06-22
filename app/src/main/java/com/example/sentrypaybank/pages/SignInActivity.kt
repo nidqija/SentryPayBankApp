@@ -1,5 +1,6 @@
 package com.example.sentrypaybank.pages
 
+import com.example.sentrypaybank.backend.remote.data.repository.AuthRepository
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,8 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -18,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,22 +37,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sentrypaybank.R
 import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignInActivity(
     modifier: Modifier = Modifier,
     onNavigateToHome: () -> Unit = {},
-    onSignInSubmit: () -> Unit = {}
+    repository: AuthRepository = remember { AuthRepository() },
+    onSignInSubmit: (String) -> Unit = {}
 ) {
-    // State management for user credentials
+    // State management for user credentials and feedback UI states
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) } // ⏳ Tracks loading state
+
+    val scope = rememberCoroutineScope()
 
     // Theme Accent Colors
     val neonGreenAccent = Color(0xFF00E676)
     val inputFieldTextColor = Color.White
 
-    // GX Bank Vibe: Ultra-deep premium dark backdrop gradient matching Cover Page
+    // GX Bank Vibe: Ultra-deep premium dark backdrop gradient
     val gxBankBackgroundGradient = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF0B0F19), // Deepest dark slate/black
@@ -68,11 +78,11 @@ fun SignInActivity(
         modifier = modifier
             .fillMaxSize()
             .background(gxBankBackgroundGradient)
-            .padding(horizontal = 32.dp), // Matched padding behavior for structured alignment
+            .padding(horizontal = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Main Branding Header styled identically to Cover Page
+        // Main Branding Header
         Text(
             text = "SENTRY PAY",
             fontSize = 32.sp,
@@ -96,15 +106,17 @@ fun SignInActivity(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Email Input Field matching dark mode palette
+        // Email Input Field
         OutlinedTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = {
+                email = it
+                errorMessage = null // Clear error when user retypes
+            },
             label = { Text("Email Address", fontFamily = IBMPlexSansFontFamily) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-
-            // define extra styling on the text box using OutlinedTextFieldDefaults
+            enabled = !isLoading,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = inputFieldTextColor,
                 unfocusedTextColor = inputFieldTextColor,
@@ -117,13 +129,17 @@ fun SignInActivity(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Password Input Field matching dark mode palette
+        // Password Input Field
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = {
+                password = it
+                errorMessage = null // Clear error when user retypes
+            },
             label = { Text("Password", fontFamily = IBMPlexSansFontFamily) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
+            enabled = !isLoading,
             visualTransformation = PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = inputFieldTextColor,
@@ -135,22 +151,62 @@ fun SignInActivity(
             )
         )
 
+        // ✨ Dynamic Error Box Rendering
+        if (errorMessage != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = errorMessage!!,
+                color = Color(0xFFFF5252), // Clean premium material design red tint
+                fontSize = 13.sp,
+                fontFamily = IBMPlexSansFontFamily,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start
+            )
+        }
+
         Spacer(modifier = Modifier.height(32.dp))
 
         // Primary Action: Premium Neon Sign In Button
         Button(
-            onClick = { onSignInSubmit() },
+            onClick = {
+                if (email.isNotBlank() && password.isNotBlank()) {
+                    isLoading = true
+                    errorMessage = null
+                    scope.launch {
+                        val result = repository.loginUser(email, password)
+                        isLoading = false
+
+                        if (result.isSuccess) {
+                            val token = result.getOrDefault("")
+                            onSignInSubmit(token)
+                        } else {
+                            errorMessage = result.exceptionOrNull()?.message ?: "An unexpected error occurred"
+                        }
+                    }
+                } else {
+                    errorMessage = "Please enter both an email address and a password."
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading, // Block spam taps while network simulation delays
             colors = ButtonDefaults.buttonColors(
                 containerColor = neonGreenAccent,
-                contentColor = Color(0xFF0B0F19) // Dark text contrast against neon background
+                contentColor = Color(0xFF0B0F19)
             )
         ) {
-            Text(
-                text = "Sign In",
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = IBMPlexSansFontFamily
-            )
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = Color(0xFF0B0F19),
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text(
+                    text = "Sign In",
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = IBMPlexSansFontFamily
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -159,6 +215,7 @@ fun SignInActivity(
         OutlinedButton(
             onClick = { onNavigateToHome() },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading,
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = Color.White
             ),
