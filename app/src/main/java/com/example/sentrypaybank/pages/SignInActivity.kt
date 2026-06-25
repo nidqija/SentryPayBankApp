@@ -176,9 +176,11 @@ fun SignInActivity(
                         val result = repository.loginUser(email, password)
                         isLoading = false
 
+
                         if (result.isSuccess) {
                             val token = result.getOrDefault("")
                             onSignInSubmit(token)
+                            onNavigateToHome()
                         } else {
                             errorMessage = result.exceptionOrNull()?.message ?: "An unexpected error occurred"
                         }
@@ -211,22 +213,26 @@ fun SignInActivity(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Secondary Action: Minimalist Back to Home Button
-        OutlinedButton(
-            onClick = { onNavigateToHome() },
+        Button(
+            onClick = {},
             modifier = Modifier.fillMaxWidth(),
-            enabled = !isLoading,
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color.White
-            ),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
-        ) {
+            colors = ButtonDefaults.buttonColors(
+                containerColor = neonGreenAccent,
+                contentColor = Color(0xFF0B0F19),
+            )
+
+        ){
             Text(
-                text = "Go back to home",
+                text = "Forgot password ? contact us",
                 fontWeight = FontWeight.Normal,
                 fontFamily = IBMPlexSansFontFamily
+
             )
         }
+
+
+
+
     }
 }
 
