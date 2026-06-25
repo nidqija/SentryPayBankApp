@@ -1,19 +1,21 @@
 package com.example.sentrypaybank.pages
 
-import java.util.Locale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -23,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sentrypaybank.R
 import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
+import java.util.Locale
 
 data class SubscriptionItem(
     val id: String,
@@ -33,6 +36,8 @@ data class SubscriptionItem(
     val initialLetter: String
 )
 
+data class NavItem(val label: String)
+
 @Composable
 fun HomeActivity(
     modifier: Modifier = Modifier,
@@ -40,7 +45,7 @@ fun HomeActivity(
 ) {
     val neonGreenAccent = Color(0xFF00E676)
     val cardBackground = Color(0xFF1F2937).copy(alpha = 0.4f)
-
+    val navBarDarkBackground = Color(0xFF0B0F19) // Balanced premium dark mode backdrop match
     val gxBankBackgroundGradient = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF0B0F19),
@@ -55,6 +60,14 @@ fun HomeActivity(
         Font(resId = R.font.ibmplexsans_semibold, weight = FontWeight.SemiBold)
     )
 
+    var selectedItem by remember { mutableStateOf(0) }
+    val navItems = listOf(
+        NavItem("Home"),
+        NavItem("Pipelines"),
+        NavItem("Payment"),
+        NavItem("Profile")
+    )
+
     val subscriptions = remember {
         listOf(
             SubscriptionItem("1", "GitHub Copilot", "Developer Tools", 10.00, "July 12, 2026", "G"),
@@ -67,10 +80,35 @@ fun HomeActivity(
 
     val totalMonthlySpend = remember(subscriptions) { subscriptions.sumOf { it.cost } }
 
+
+    Scaffold(bottomBar = {
+        NavigationBar(
+            containerColor = navBarDarkBackground,
+            tonalElevation = 8.dp,
+            modifier = Modifier.border(1.dp, Color.White.copy(alpha = 0.05f) , RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+        ) {
+            navItems.forEachIndexed { index, item ->
+                NavigationBarItem(
+                    selected = selectedItem == index,
+                    onClick = { selectedItem = index },
+                    label = { Text(text = item.label, fontFamily = IBMPlexSansFontFamily, fontSize = 12.sp) },
+                    icon = { /* You can add default text-only tab fallbacks or empty Box here */ },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF0B0F19),
+                        selectedTextColor = neonGreenAccent,
+                        indicatorColor = neonGreenAccent,
+                        unselectedTextColor = Color.White.copy(alpha = 0.4f)
+                    )
+                )
+            }
+         }
+        }
+    ) { innerPadding ->
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(gxBankBackgroundGradient)
+            .padding(innerPadding)
             .padding(horizontal = 24.dp)
     ) {
         // --- TOP TOOLBAR SECTION ---
@@ -166,8 +204,8 @@ fun HomeActivity(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.weight(1f)
 
-        ){
-            items(subscriptions) {subscription ->
+        ) {
+            items(subscriptions) { subscription ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -175,7 +213,7 @@ fun HomeActivity(
                         .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(14.dp))
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
 
                     Box(
                         modifier = Modifier
@@ -195,7 +233,7 @@ fun HomeActivity(
                     Spacer(modifier = Modifier.width(16.dp))
 
 
-                    Column(modifier = Modifier.weight(1f)){
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = subscription.name,
                             fontSize = 15.sp,
@@ -212,7 +250,7 @@ fun HomeActivity(
                         )
                     }
 
-                    Column(horizontalAlignment = Alignment.End){
+                    Column(horizontalAlignment = Alignment.End) {
                         Text(
                             text = String.format(Locale.US, "-$%.2f", subscription.cost),
                             fontSize = 15.sp,
@@ -228,9 +266,14 @@ fun HomeActivity(
                             fontFamily = IBMPlexSansFontFamily
                         )
                     }
+
+
                 }
             }
+
+
         }
+    }
     }
 }
 
