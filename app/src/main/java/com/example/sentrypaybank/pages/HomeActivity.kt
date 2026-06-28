@@ -42,6 +42,7 @@ data class NavItem(val label: String)
 fun HomeActivity(
     modifier: Modifier = Modifier,
     onNavigateToSignIn: () -> Unit = {}
+
 ) {
     val neonGreenAccent = Color(0xFF00E676)
     val cardBackground = Color(0xFF1F2937).copy(alpha = 0.4f)
