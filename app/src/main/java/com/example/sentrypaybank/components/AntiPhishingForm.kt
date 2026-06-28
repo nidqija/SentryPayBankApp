@@ -116,7 +116,9 @@ fun AntiPhishingForm(
             }
 
             Button(
-                onClick = {onNavigateToHome},
+                onClick = {
+                    onNavigateToHome()
+                          },
                 modifier = Modifier.fillMaxWidth()
                     .padding(12.dp)
             ) {

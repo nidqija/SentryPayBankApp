@@ -255,7 +255,11 @@ fun SignInActivity(
 
                 ) {
                     AntiPhishingForm(
-                        onDisplayForm = {
+                        // for a component , define the function and its implementation here
+                        // it calls the function defined in component and it will function as usual
+                        // ex : to redirect to home page , define a val at the form and implement it via
+                        // a constructor
+                        onNavigateToHome = {
                             showPhishingOverlay = false
                             onNavigateToHome()
                         }
