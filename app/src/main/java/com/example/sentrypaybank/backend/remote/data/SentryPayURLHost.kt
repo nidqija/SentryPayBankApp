@@ -12,8 +12,10 @@ import retrofit2.http.Body
 // define the data transfer objects ( DTO )
 // this data class is to be sent to backend via url defined below
 data class LoginRequest(val username: String, val password: String)
-data class AuthResponse(val token : String , val username: String)
-
+data class LoginResponse(
+    val token: String,
+    val antiPhishingName: String
+)
 // defined the interface
 interface SentryPayURLHost {
 
@@ -21,7 +23,7 @@ interface SentryPayURLHost {
 
     // suspend fun forcing the function to run asynchronously
     // without disrupting the UI thread
-    suspend fun loginUser(@Body request: LoginRequest) : Response<AuthResponse>
+    suspend fun loginUser(@Body request: LoginRequest) : Response<LoginResponse>
 
     // this is the same as static method
     // instead , it uses companion object

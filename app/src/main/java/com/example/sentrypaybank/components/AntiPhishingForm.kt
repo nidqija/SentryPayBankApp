@@ -48,8 +48,11 @@ import com.example.sentrypaybank.backend.remote.data.LoginRequest
 fun AntiPhishingForm(
     modifier : Modifier = Modifier,
     onDisplayForm: () -> Unit = {},
-    onNavigateToHome: () -> Unit = {}
-
+    onNavigateToHome: () -> Unit = {},
+    onNavigateToSignIn : () -> Unit = {},
+    // set the parameter here
+    // this is to receive the param from the backend
+    phishingName : String
     ){
 
     var antiPhishingName by remember { mutableStateOf("") }
@@ -89,7 +92,7 @@ fun AntiPhishingForm(
 
 
         Text(
-            text = "Are you antiPhishingName?",
+            text = "Are you $phishingName?",
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium,
             color = Color(0xFF0F172A),
@@ -105,7 +108,9 @@ fun AntiPhishingForm(
         ){
 
                 Button(
-                onClick = {},
+                onClick = {
+                    onNavigateToSignIn()
+                },
                 modifier = Modifier.fillMaxWidth()
                     .padding(12.dp)
 
@@ -135,7 +140,7 @@ fun AntiPhishingForm(
 @Composable
 fun AntiPhishingFormPreview(){
     SentryPayBankTheme {
-        AntiPhishingForm()
+        AntiPhishingForm(phishingName = "")
     }
 }
 

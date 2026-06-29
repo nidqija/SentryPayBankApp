@@ -1,6 +1,7 @@
 package com.example.sentrypaybank.backend.remote.data.repository
 
 import com.example.sentrypaybank.backend.remote.data.LoginRequest
+import com.example.sentrypaybank.backend.remote.data.LoginResponse
 import com.example.sentrypaybank.backend.remote.data.SentryPayURLHost
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -29,7 +30,7 @@ class AuthRepository(baseURL: String? = null) {
     }
 
 
-    suspend fun loginUser(usernameInput: String, userPasswordInput: String): Result<String> {
+    suspend fun loginUser(usernameInput: String, userPasswordInput: String): Result<LoginResponse> {
         return try {
             val request = LoginRequest(
                 username = usernameInput,
@@ -40,7 +41,7 @@ class AuthRepository(baseURL: String? = null) {
             val body = response.body()
 
             if (response.isSuccessful && body != null) {
-                Result.success(body.token)
+                Result.success(body)
             } else {
                 val errorMsg = response.errorBody()?.string() ?: "Login failed"
                 Result.failure(Exception("$errorMsg (Status: ${response.code()})"))
