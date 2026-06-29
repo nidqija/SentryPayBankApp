@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
 fun SignInActivity(
     modifier: Modifier = Modifier,
     onNavigateToHome: () -> Unit = {},
+    onNavigateToSignIn : () -> Unit = {},
     repository: AuthRepository = remember { AuthRepository() },
     onSignInSubmit: (String) -> Unit = {}
 ) {
@@ -55,6 +56,7 @@ fun SignInActivity(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
     var showPhishingOverlay by remember { mutableStateOf(false) }
+    var targetPhishingName by remember {mutableStateOf("")}
 
     val scope = rememberCoroutineScope()
 
@@ -187,9 +189,14 @@ fun SignInActivity(
 
 
                             if (result.isSuccess) {
-                                val token = result.getOrDefault("")
-                                onSignInSubmit(token)
-                                showPhishingOverlay = true
+                                val loginData = result.getOrNull()
+
+                                if(loginData != null){
+                                    targetPhishingName = loginData.antiPhishingName
+                                    onSignInSubmit(loginData.token)
+                                    showPhishingOverlay = true
+                                }
+
 
                             } else {
                                 errorMessage = result.exceptionOrNull()?.message
@@ -256,13 +263,25 @@ fun SignInActivity(
                 ) {
                     AntiPhishingForm(
                         // for a component , define the function and its implementation here
-                        // it calls the function defined in component and it will function as usual
+                        // it calls the function defined in component, and it will function as usual
                         // ex : to redirect to home page , define a val at the form and implement it via
                         // a constructor
+                        // pass the state param to the phishing form param
+                        phishingName = targetPhishingName,
                         onNavigateToHome = {
                             showPhishingOverlay = false
                             onNavigateToHome()
+
+                        },
+                        onNavigateToSignIn = {
+                            showPhishingOverlay = false
+                            email = ""
+                            password = ""
+                            onNavigateToSignIn()
                         }
+
+
+
                     )
                 }
             }
