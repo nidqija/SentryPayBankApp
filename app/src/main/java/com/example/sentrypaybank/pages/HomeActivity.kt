@@ -82,34 +82,12 @@ fun HomeActivity(
     val totalMonthlySpend = remember(subscriptions) { subscriptions.sumOf { it.cost } }
 
 
-    Scaffold(bottomBar = {
-        NavigationBar(
-            containerColor = navBarDarkBackground,
-            tonalElevation = 8.dp,
-            modifier = Modifier.border(1.dp, Color.White.copy(alpha = 0.05f) , RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-        ) {
-            navItems.forEachIndexed { index, item ->
-                NavigationBarItem(
-                    selected = selectedItem == index,
-                    onClick = { selectedItem = index },
-                    label = { Text(text = item.label, fontFamily = IBMPlexSansFontFamily, fontSize = 12.sp) },
-                    icon = { /* You can add default text-only tab fallbacks or empty Box here */ },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFF0B0F19),
-                        selectedTextColor = neonGreenAccent,
-                        indicatorColor = neonGreenAccent,
-                        unselectedTextColor = Color.White.copy(alpha = 0.4f)
-                    )
-                )
-            }
-         }
-        }
-    ) { innerPadding ->
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(gxBankBackgroundGradient)
-            .padding(innerPadding)
+            .padding(12.dp)
             .padding(horizontal = 24.dp)
     ) {
         // --- TOP TOOLBAR SECTION ---
@@ -276,7 +254,7 @@ fun HomeActivity(
         }
     }
     }
-}
+
 
 
 @Preview(showBackground = true)

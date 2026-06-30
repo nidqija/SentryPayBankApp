@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import com.example.sentrypaybank.navigation.NavBar
 import com.example.sentrypaybank.pages.CoverPageActivity
 import com.example.sentrypaybank.pages.HomeActivity
+import com.example.sentrypaybank.pages.MainDashboardActivity
 import com.example.sentrypaybank.pages.SignInActivity
 
 class MainActivity : ComponentActivity() {
@@ -75,7 +76,9 @@ fun SetryPayAppNavigation(modifier: Modifier = Modifier){
         composable(NavBar.Signin.route) { // Ensure this matches what navController calls!
             SignInActivity(
                 onNavigateToHome = {
-                    navController.navigate(NavBar.HomePage.route)
+                    navController.navigate(NavBar.HomePage.route){
+                        popUpTo(NavBar.Signin.route) {inclusive = true}
+                    }
                 }
             )
         }
@@ -90,11 +93,11 @@ fun SetryPayAppNavigation(modifier: Modifier = Modifier){
                         popUpTo(NavBar.HomePage.route){inclusive=true}
                     }
                 }
-
-
             )
         }
 
-
+        composable(NavBar.HomePage.route){
+            MainDashboardActivity()
+        }
     }
 }
