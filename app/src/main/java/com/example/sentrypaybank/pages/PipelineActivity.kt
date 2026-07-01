@@ -68,7 +68,7 @@ fun PipelineActivity(
         NavItem("Profile")
     )
 
-    var selectedItem by remember { mutableStateOf(1) }
+    var selectedItem by remember { mutableStateOf(1) };
 
     val IBMPlexSansFontFamily = FontFamily(
         Font(resId = R.font.ibmplexsans_medium, weight = FontWeight.Medium),
@@ -86,9 +86,76 @@ fun PipelineActivity(
 
 
         ) {
-            // pass
+
+                Column(
+                    modifier = Modifier.padding(20.dp)
+
+                ){
+
+
+                    Text(
+                        text = "Pipeline Marketplace",
+                        color = Color.White,
+                        fontFamily = IBMPlexSansFontFamily,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Normal,
+
+                    )
+
+                    Spacer(modifier = Modifier.padding(4.dp))
+
+                    Text(
+                        text = "Check out our services below , all in one place!",
+                        color = Color.White.copy(alpha = 0.5f),
+                        fontFamily = IBMPlexSansFontFamily,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Normal,
+
+                        )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                        .wrapContentHeight()
+                        .background(Color.White)
+                        .border(
+                            width = 1.dp,
+                            brush = Brush.linearGradient(listOf(Color.White.copy(alpha = 0.15f), Color.Transparent)),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(16.dp)
+                ){
+
+                        Column(
+                            modifier = Modifier.padding(12.dp)
+                                .fillMaxWidth()
+                        ){
+                            Text(
+                                text = "Netflix Premium",
+                                color = Color.Black,
+                                fontSize = 20.sp
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Text(
+                                text = "Enjoy netflix premium and global account sharing amongst your family members!",
+                                color = Color.Black,
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 15.sp
+
+                            )
+                        }
+
+                }
+
+
+
+            }
         }
-    }
+
 
 
 

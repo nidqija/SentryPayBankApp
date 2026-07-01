@@ -1,6 +1,7 @@
 package com.example.sentrypaybank.backend.remote.data
 
 
+import android.app.Service
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -8,6 +9,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.POST
 import retrofit2.http.Body
+import retrofit2.http.GET
 
 // define the data transfer objects ( DTO )
 // this data class is to be sent to backend via url defined below
@@ -15,6 +17,15 @@ data class LoginRequest(val username: String, val password: String)
 data class LoginResponse(
     val token: String,
     val antiPhishingName: String
+)
+
+data class ServicesResponse (
+    val serviceName : String,
+    val serviceDesc : String,
+    val servicePrice : Double,
+    val serviceType : String,
+    val renewalPeriod : String,
+    val currency : String
 )
 // defined the interface
 interface SentryPayURLHost {
@@ -24,6 +35,10 @@ interface SentryPayURLHost {
     // suspend fun forcing the function to run asynchronously
     // without disrupting the UI thread
     suspend fun loginUser(@Body request: LoginRequest) : Response<LoginResponse>
+
+
+    @GET("api/services")
+    suspend fun getService() : Response<ServicesResponse>
 
     // this is the same as static method
     // instead , it uses companion object
