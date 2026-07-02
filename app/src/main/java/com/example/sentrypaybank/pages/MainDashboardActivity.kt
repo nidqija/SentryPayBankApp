@@ -21,10 +21,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.sentrypaybank.R
 import com.example.sentrypaybank.navigation.BottomBarScreen
+import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
 
 
 @Composable
-fun MainDashboardActivity(){
+fun MainDashboardActivity(viewModel: MainViewModel? = null){
     val nestedNavController = rememberNavController()
 
     val navItems = listOf(
@@ -96,16 +97,16 @@ fun MainDashboardActivity(){
         ){
 
             composable(BottomBarScreen.Home.route){
-                HomeActivity()
+                HomeActivity(viewModel = viewModel)
             }
             composable(BottomBarScreen.Pipelines.route){
                 PipelineActivity()
             }
-            composable(BottomBarScreen.Home.route){
-                HomeActivity()
+            composable(BottomBarScreen.Payment.route){
+                HomeActivity(viewModel = viewModel)
             }
-            composable(BottomBarScreen.Home.route){
-                HomeActivity()
+            composable(BottomBarScreen.Profile.route){
+                HomeActivity(viewModel = viewModel)
             }
 
 
