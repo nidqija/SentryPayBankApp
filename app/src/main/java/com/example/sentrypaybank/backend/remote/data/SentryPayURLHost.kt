@@ -2,6 +2,7 @@ package com.example.sentrypaybank.backend.remote.data
 
 
 import android.app.Service
+import com.example.sentrypaybank.pages.ServicesItem
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -10,6 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.POST
 import retrofit2.http.Body
 import retrofit2.http.GET
+import com.google.gson.annotations.SerializedName
 
 // define the data transfer objects ( DTO )
 // this data class is to be sent to backend via url defined below
@@ -25,7 +27,10 @@ data class ServicesResponse (
     val servicePrice : Double,
     val serviceType : String,
     val renewalPeriod : String,
-    val currency : String
+    val currency : String,
+    // create a val for a list to store the data object params
+    @SerializedName("services")
+    val services : List<ServicesItem>
 )
 // defined the interface
 interface SentryPayURLHost {

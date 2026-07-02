@@ -35,7 +35,7 @@ class ServiceRepository(baseURL : String? = null) {
 
       // return a try catch block
       return try {
-          // get the response from apiservice
+          // get the response from API Service
           val response = apiService.getService()
           // extract the response body from response
           val body = response.body()
@@ -46,7 +46,7 @@ class ServiceRepository(baseURL : String? = null) {
               Result.success(body)
           } else {
               // if fails , create an error message and return back to client
-              val errorMsg = "Error message from terminal : " + response.errorBody()?.toString()
+              val errorMsg = "Error message from terminal : " + response.errorBody()?.string()
               Result.failure(Exception("$errorMsg (Status: ${response.code()})"))
 
           }

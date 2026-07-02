@@ -20,6 +20,9 @@ import com.example.sentrypaybank.pages.CoverPageActivity
 import com.example.sentrypaybank.pages.HomeActivity
 import com.example.sentrypaybank.pages.MainDashboardActivity
 import com.example.sentrypaybank.pages.SignInActivity
+import com.example.sentrypaybank.backend.remote.data.repository.AuthRepository
+import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
+import androidx.compose.runtime.remember
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +55,9 @@ class MainActivity : ComponentActivity() {
 fun SetryPayAppNavigation(modifier: Modifier = Modifier){
 
     // keep track of the navigation stack and current screen state
-    var navController = rememberNavController()
+    val navController = rememberNavController()
+    val authRepository = remember { AuthRepository() }
+    val mainViewModel = remember { MainViewModel(authRepository) }
 
 
     // connects the navcontroller to the nav graph destinations
@@ -75,6 +80,7 @@ fun SetryPayAppNavigation(modifier: Modifier = Modifier){
 
         composable(NavBar.Signin.route) { // Ensure this matches what navController calls!
             SignInActivity(
+                repository = authRepository,
                 onNavigateToHome = {
                     navController.navigate(NavBar.HomePage.route){
                         popUpTo(NavBar.Signin.route) {inclusive = true}
@@ -85,19 +91,8 @@ fun SetryPayAppNavigation(modifier: Modifier = Modifier){
 
 
         // destination route for home page
-        composable (NavBar.HomePage.route){
-            HomeActivity (
-                // define the function of the navigation to sign in page
-                onNavigateToSignIn = {
-                    navController.navigate(NavBar.Signin.route){
-                        popUpTo(NavBar.HomePage.route){inclusive=true}
-                    }
-                }
-            )
-        }
-
         composable(NavBar.HomePage.route){
-            MainDashboardActivity()
+            MainDashboardActivity(viewModel = mainViewModel)
         }
     }
 }

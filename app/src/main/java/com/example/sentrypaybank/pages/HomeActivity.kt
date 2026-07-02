@@ -23,7 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sentrypaybank.R
+import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
 import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
 import java.util.Locale
 
@@ -41,9 +43,10 @@ data class NavItem(val label: String)
 @Composable
 fun HomeActivity(
     modifier: Modifier = Modifier,
-    onNavigateToSignIn: () -> Unit = {}
-
+    onNavigateToSignIn: () -> Unit = {},
+    viewModel: MainViewModel? = null
 ) {
+
     val neonGreenAccent = Color(0xFF00E676)
     val cardBackground = Color(0xFF1F2937).copy(alpha = 0.4f)
     val navBarDarkBackground = Color(0xFF0B0F19) // Balanced premium dark mode backdrop match
@@ -68,6 +71,13 @@ fun HomeActivity(
         NavItem("Payment"),
         NavItem("Profile")
     )
+
+    // 1. Collect the state safely if the viewmodel exists
+    val stateView = viewModel?.loggedInUsername?.collectAsStateWithLifecycle()
+
+    // 2. Read the state value, or fall back to default preview placeholder string
+    val userName = stateView?.value ?: "Sentry User"
+
 
     val subscriptions = remember {
         listOf(
@@ -106,7 +116,7 @@ fun HomeActivity(
                     fontFamily = IBMPlexSansFontFamily
                 )
                 Text(
-                    text = "Sentry User",
+                    text = userName,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
@@ -128,7 +138,7 @@ fun HomeActivity(
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    text = "Monthly Spending",
+                    text = "Your Sentry Wallet",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     letterSpacing = 1.5.sp,
