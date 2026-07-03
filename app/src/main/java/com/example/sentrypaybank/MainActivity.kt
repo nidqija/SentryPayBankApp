@@ -23,6 +23,7 @@ import com.example.sentrypaybank.pages.SignInActivity
 import com.example.sentrypaybank.backend.remote.data.repository.AuthRepository
 import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
 import androidx.compose.runtime.remember
+import com.example.sentrypaybank.backend.remote.data.repository.WalletRepository
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +58,8 @@ fun SetryPayAppNavigation(modifier: Modifier = Modifier){
     // keep track of the navigation stack and current screen state
     val navController = rememberNavController()
     val authRepository = remember { AuthRepository() }
-    val mainViewModel = remember { MainViewModel(authRepository) }
+    val walletRepository = remember { WalletRepository() }
+    val mainViewModel = remember { MainViewModel(authRepository , walletRepository) }
 
 
     // connects the navcontroller to the nav graph destinations

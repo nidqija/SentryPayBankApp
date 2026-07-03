@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sentrypaybank.R
 import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
 import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
+import com.google.gson.annotations.SerializedName
 import java.util.Locale
 
 data class SubscriptionItem(
@@ -36,6 +38,15 @@ data class SubscriptionItem(
     val cost: Double,
     val renewalDate: String,
     val initialLetter: String
+)
+
+data class WalletItem(
+    val walletId: Long,
+    val balance: Float,
+    val currency: String,
+    val createdAt: String, // Or use LocalDateTime depending on your Kotlin serialization setup
+    val userId: Long,
+    val userFullname: String
 )
 
 data class NavItem(val label: String)
@@ -49,7 +60,6 @@ fun HomeActivity(
 
     val neonGreenAccent = Color(0xFF00E676)
     val cardBackground = Color(0xFF1F2937).copy(alpha = 0.4f)
-    val navBarDarkBackground = Color(0xFF0B0F19) // Balanced premium dark mode backdrop match
     val gxBankBackgroundGradient = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF0B0F19),
@@ -64,20 +74,22 @@ fun HomeActivity(
         Font(resId = R.font.ibmplexsans_semibold, weight = FontWeight.SemiBold)
     )
 
-    var selectedItem by remember { mutableStateOf(0) }
-    val navItems = listOf(
-        NavItem("Home"),
-        NavItem("Pipelines"),
-        NavItem("Payment"),
-        NavItem("Profile")
-    )
+
 
     // 1. Collect the state safely if the viewmodel exists
     val stateView = viewModel?.loggedInUsername?.collectAsStateWithLifecycle()
+    val userBalanceState = viewModel?.currentBalance?.collectAsStateWithLifecycle()
 
     // 2. Read the state value, or fall back to default preview placeholder string
     val userName = stateView?.value ?: "Sentry User"
 
+    // 3. Read the state value
+    val userBalance = userBalanceState?.value ?: "not a value"
+
+    LaunchedEffect(Unit) {
+        // Pass the matching logged-in user id here (e.g. 1L)
+        viewModel?.fetchUserWallet(userId = 1)
+    }
 
     val subscriptions = remember {
         listOf(
@@ -160,7 +172,7 @@ fun HomeActivity(
                         fontFamily = IBMPlexSansFontFamily
                     )
                     Text(
-                        text = String.format(Locale.US, "%.2f", totalMonthlySpend),
+                        text = String.format(Locale.US, "%.2f", userBalance),
                         fontSize = 38.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,

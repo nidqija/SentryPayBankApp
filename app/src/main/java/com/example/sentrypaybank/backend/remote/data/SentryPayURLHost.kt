@@ -3,6 +3,7 @@ package com.example.sentrypaybank.backend.remote.data
 
 import android.app.Service
 import com.example.sentrypaybank.pages.ServicesItem
+import com.example.sentrypaybank.pages.WalletItem
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -12,6 +13,7 @@ import retrofit2.http.POST
 import retrofit2.http.Body
 import retrofit2.http.GET
 import com.google.gson.annotations.SerializedName
+import retrofit2.http.Path
 
 // define the data transfer objects ( DTO )
 // this data class is to be sent to backend via url defined below
@@ -32,6 +34,16 @@ data class ServicesResponse (
     @SerializedName("services")
     val services : List<ServicesItem>
 )
+
+data class WalletResponse(
+    val walletId: Long,
+    val balance: Float,
+    val currency: String,
+    val createdAt: String, // Or use LocalDateTime depending on your Kotlin serialization setup
+    val userId: Long,
+    val userFullname: String
+)
+
 // defined the interface
 interface SentryPayURLHost {
 
@@ -44,6 +56,9 @@ interface SentryPayURLHost {
 
     @GET("api/services")
     suspend fun getService() : Response<ServicesResponse>
+
+    @GET("api/users/{userId}/wallet")
+    suspend fun getWalletByUser(@Path("userId") userId: Long) : Response<WalletResponse>
 
     // this is the same as static method
     // instead , it uses companion object
