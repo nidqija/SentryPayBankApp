@@ -19,7 +19,8 @@ import retrofit2.http.Path
 data class LoginRequest(val username: String, val password: String)
 data class LoginResponse(
     val token: String,
-    val antiPhishingName: String
+    val antiPhishingName: String,
+    val userId: Long
 )
 
 data class ServicesResponse (

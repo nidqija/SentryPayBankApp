@@ -19,6 +19,7 @@ class MainViewModel(
     private val serviceRepository: ServiceRepository
 ): ViewModel(){
     val loggedInUsername : StateFlow<String> = authRepository.currentUserName
+    val loggedInUserId : StateFlow<Long?> = authRepository.currentUserId
     private val _currentBalance = MutableStateFlow(0.0f)
     val currentBalance: StateFlow<Float> = _currentBalance.asStateFlow()
 

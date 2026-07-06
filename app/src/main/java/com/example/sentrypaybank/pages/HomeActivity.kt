@@ -73,20 +73,24 @@ fun HomeActivity(
     val stateView = viewModel?.loggedInUsername?.collectAsStateWithLifecycle()
     val userBalanceState = viewModel?.currentBalance?.collectAsStateWithLifecycle()
     val userSubscriptionState = viewModel?.userSubscriptions?.collectAsStateWithLifecycle()
+    val userIdState = viewModel?.loggedInUserId?.collectAsStateWithLifecycle() // Observed ID flow
 
     // 2. Read the state value, or fall back to default preview placeholder string
     val userName = stateView?.value ?: "Sentry User"
+    val userID = userIdState?.value
 
     // 3. Read the state value
     val userBalance = userBalanceState?.value ?: 0.0f
 
+
     val subscriptionWrapper = userSubscriptionState?.value
     val realSubscriptions = subscriptionWrapper?.serviceSubscriptions ?:emptyList()
 
-    LaunchedEffect(Unit) {
-        // Pass the matching logged-in user id here (e.g. 1L)
-        viewModel?.fetchUserWallet(userId = 1)
-        viewModel?.fetchUserSubscriptions(userId = 1)
+    LaunchedEffect(userID) {
+        if (userID != null) {
+            viewModel?.fetchUserWallet(userID)
+            viewModel?.fetchUserSubscriptions(userID)
+        }
     }
 
     val subscriptions = remember {
