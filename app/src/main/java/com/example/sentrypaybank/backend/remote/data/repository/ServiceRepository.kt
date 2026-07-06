@@ -1,7 +1,9 @@
 package com.example.sentrypaybank.backend.remote.data.repository
 
 
+import androidx.compose.runtime.snapshots.SnapshotId
 import com.example.sentrypaybank.backend.remote.data.SentryPayURLHost
+import com.example.sentrypaybank.backend.remote.data.ServiceSubscriptionResponse
 import com.example.sentrypaybank.backend.remote.data.ServicesResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -55,5 +57,24 @@ class ServiceRepository(baseURL : String? = null) {
             Result.failure(Exception("Network error: ${e.message}"))
       }
 
+    }
+
+    suspend fun getServicesById(userId: Long): Result<ServiceSubscriptionResponse>{
+        return try {
+            val response = apiService.getServicesByUser(userId)
+            val body = response.body()
+
+
+            if (response.isSuccessful && body != null){
+                Result.success(body)
+            } else {
+                val errorMsg = "Error message from terminal : " + response.errorBody()?.string()
+                Result.failure(Exception("$errorMsg (Status: ${response.code()})"))
+            }
+
+
+        } catch (e: Exception){
+            Result.failure(Exception("Network error: ${e.message}"))
+        }
     }
 }

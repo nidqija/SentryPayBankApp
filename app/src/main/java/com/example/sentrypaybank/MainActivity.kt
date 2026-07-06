@@ -21,6 +21,7 @@ import com.example.sentrypaybank.pages.HomeActivity
 import com.example.sentrypaybank.pages.MainDashboardActivity
 import com.example.sentrypaybank.pages.SignInActivity
 import com.example.sentrypaybank.backend.remote.data.repository.AuthRepository
+import com.example.sentrypaybank.backend.remote.data.repository.ServiceRepository
 import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
 import androidx.compose.runtime.remember
 import com.example.sentrypaybank.backend.remote.data.repository.WalletRepository
@@ -59,12 +60,13 @@ fun SetryPayAppNavigation(modifier: Modifier = Modifier){
     val navController = rememberNavController()
     val authRepository = remember { AuthRepository() }
     val walletRepository = remember { WalletRepository() }
-    val mainViewModel = remember { MainViewModel(authRepository , walletRepository) }
+    val serviceRepository = remember { ServiceRepository() }
+    val mainViewModel = remember { MainViewModel(authRepository , walletRepository, serviceRepository) }
 
 
     // connects the navcontroller to the nav graph destinations
     NavHost(
-       navController = navController,
+        navController = navController,
         startDestination = "cover_page",
         modifier = modifier
 
