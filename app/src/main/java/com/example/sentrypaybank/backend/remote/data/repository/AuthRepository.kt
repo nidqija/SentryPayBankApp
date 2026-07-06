@@ -18,9 +18,12 @@ class AuthRepository(baseURL: String? = null) {
     // create a backup state initialized with a placeholder
     // this acts as a fallback if the fetching username data fails on request
     private val _currentUserName = MutableStateFlow("Sentry User")
+    private val _currentUserId = MutableStateFlow<Long?>(null)
 
     // expose read only stream for composable ui view
     val currentUserName: StateFlow<String> = _currentUserName.asStateFlow()
+    val currentUserId: StateFlow<Long?> = _currentUserId.asStateFlow()
+
 
     private val apiService: SentryPayURLHost = if (baseURL != null) {
         val logging = HttpLoggingInterceptor().apply {
@@ -55,6 +58,7 @@ class AuthRepository(baseURL: String? = null) {
 
             if (response.isSuccessful && body != null) {
                 _currentUserName.value = usernameInput.trim()
+                _currentUserId.value = body.userId
                 Result.success(body)
             } else {
                 val errorMsg = response.errorBody()?.string() ?: "Login failed"
