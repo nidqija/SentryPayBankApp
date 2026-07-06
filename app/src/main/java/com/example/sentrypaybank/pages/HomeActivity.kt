@@ -40,14 +40,7 @@ data class SubscriptionItem(
     val initialLetter: String
 )
 
-data class WalletItem(
-    val walletId: Long,
-    val balance: Float,
-    val currency: String,
-    val createdAt: String, // Or use LocalDateTime depending on your Kotlin serialization setup
-    val userId: Long,
-    val userFullname: String
-)
+
 
 data class NavItem(val label: String)
 
@@ -79,16 +72,21 @@ fun HomeActivity(
     // 1. Collect the state safely if the viewmodel exists
     val stateView = viewModel?.loggedInUsername?.collectAsStateWithLifecycle()
     val userBalanceState = viewModel?.currentBalance?.collectAsStateWithLifecycle()
+    val userSubscriptionState = viewModel?.userSubscriptions?.collectAsStateWithLifecycle()
 
     // 2. Read the state value, or fall back to default preview placeholder string
     val userName = stateView?.value ?: "Sentry User"
 
     // 3. Read the state value
-    val userBalance = userBalanceState?.value ?: "not a value"
+    val userBalance = userBalanceState?.value ?: 0.0f
+
+    val subscriptionWrapper = userSubscriptionState?.value
+    val realSubscriptions = subscriptionWrapper?.serviceSubscriptions ?:emptyList()
 
     LaunchedEffect(Unit) {
         // Pass the matching logged-in user id here (e.g. 1L)
         viewModel?.fetchUserWallet(userId = 1)
+        viewModel?.fetchUserSubscriptions(userId = 1)
     }
 
     val subscriptions = remember {
@@ -184,7 +182,7 @@ fun HomeActivity(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "${subscriptions.size} Active digital pipeline linkings monitored.",
+                    text = "${realSubscriptions.size} Active digital pipeline linkings monitored.",
                     fontSize = 13.sp,
                     color = Color.White.copy(alpha = 0.5f),
                     fontFamily = IBMPlexSansFontFamily
@@ -201,78 +199,99 @@ fun HomeActivity(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.weight(1f)
+        if(realSubscriptions.isEmpty() ){
+            Box(
+                modifier = Modifier.fillMaxWidth().weight(1.1f),
+                contentAlignment = Alignment.Center
 
-        ) {
-            items(subscriptions) { subscription ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(cardBackground, RoundedCornerShape(14.dp))
-                        .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(14.dp))
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            ){
+                Text(
+                    text = "No Active Subscription Found",
+                    color = Color.White.copy(alpha = 0.4f),
+                    fontFamily = IBMPlexSansFontFamily
+                )
 
-                    Box(
+
+            }
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                items(realSubscriptions){
+                    subscription ->
+                    Row(
                         modifier = Modifier
-                            .size(40.dp)
-                            .background(Color.White.copy(alpha = 0.07f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = subscription.initialLetter,
-                            color = neonGreenAccent,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            fontFamily = IBMPlexSansFontFamily
-                        )
+                            .fillMaxWidth()
+                            .background(cardBackground, RoundedCornerShape(14.dp))
+                            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(14.dp))
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        val initial = subscription.serviceName.take(1).uppercase()
+
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(Color.White.copy(alpha = 0.07f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ){
+                            Text(
+                                text = initial,
+                                color = neonGreenAccent,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = IBMPlexSansFontFamily
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+
+                        Column(
+                            horizontalAlignment = Alignment.Start
+                        ){
+
+                            Text (
+                                text = subscription.serviceName,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White,
+                                fontFamily = IBMPlexSansFontFamily
+                            )
+
+                            Text (
+                                text = subscription.subscriptionType,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color.White,
+                                fontFamily = IBMPlexSansFontFamily
+                            )
+
+                            Text(
+                                text = subscription.subscriptionStatus.replaceFirstChar { it.uppercase() },
+                                fontSize = 11.sp,
+                                color = neonGreenAccent,
+                                fontFamily = IBMPlexSansFontFamily
+                            )
+
+                            Text(
+                                text = "Renew on ${subscription.subscriptionEndDate.toString()}",
+                                fontSize = 11.sp,
+                                color = neonGreenAccent,
+                                fontFamily = IBMPlexSansFontFamily
+                            )
+
+
+                        }
+
+
+
+
+
                     }
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = subscription.name,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White,
-                            fontFamily = IBMPlexSansFontFamily
-                        )
-
-                        Text(
-                            text = "Renew ${subscription.renewalDate}",
-                            fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.4f),
-                            fontFamily = IBMPlexSansFontFamily
-                        )
-                    }
-
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(
-                            text = String.format(Locale.US, "-$%.2f", subscription.cost),
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White,
-                            fontFamily = IBMPlexSansFontFamily
-                        )
-
-                        Text(
-                            text = "Auto",
-                            fontSize = 11.sp,
-                            color = neonGreenAccent,
-                            fontFamily = IBMPlexSansFontFamily
-                        )
-                    }
-
-
                 }
             }
-
-
         }
     }
     }

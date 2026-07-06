@@ -3,7 +3,6 @@ package com.example.sentrypaybank.backend.remote.data
 
 import android.app.Service
 import com.example.sentrypaybank.pages.ServicesItem
-import com.example.sentrypaybank.pages.WalletItem
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -44,6 +43,24 @@ data class WalletResponse(
     val userFullname: String
 )
 
+
+data class ServiceSubscriptionResponse(
+    // Takes a list of SubscriptionDetails objects
+    // We use a list because a user can have multiple service subscriptions
+    val serviceSubscriptions: List<SubscriptionDetails>
+) {
+
+    // Nested data class representing the specific details of a subscription
+    data class SubscriptionDetails(
+        val subscriptionId: Long,
+        val serviceName: String,
+        val subscriptionStatus: String,
+        val subscriptionType: String,
+        val subscriptionStartDate: String,
+        val subscriptionEndDate: String? // Nullable String to match Java's potential null check
+    )
+}
+
 // defined the interface
 interface SentryPayURLHost {
 
@@ -59,6 +76,9 @@ interface SentryPayURLHost {
 
     @GET("api/users/{userId}/wallet")
     suspend fun getWalletByUser(@Path("userId") userId: Long) : Response<WalletResponse>
+
+    @GET("api/users/{userId}/user-services")
+    suspend fun getServicesByUser(@Path("userId") userId : Long) : Response<ServiceSubscriptionResponse>
 
     // this is the same as static method
     // instead , it uses companion object

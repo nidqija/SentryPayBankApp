@@ -3,6 +3,7 @@ package com.example.sentrypaybank.backend.remote.data.repository
 
 import com.example.sentrypaybank.backend.remote.data.SentryPayURLHost
 import com.example.sentrypaybank.backend.remote.data.WalletResponse
+import com.example.sentrypaybank.backend.remote.data.ServiceSubscriptionResponse
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -29,6 +30,7 @@ class WalletRepository (baseURL : String? = null) {
     }
 
 
+    // result is being taken from the wallet response data class ( dto )
     suspend fun getWalletByUser(userId : Long) : Result<WalletResponse> {
             return try {
                 val response = apiService.getWalletByUser(userId)
@@ -47,4 +49,6 @@ class WalletRepository (baseURL : String? = null) {
                 Result.failure(Exception("Network error: ${e.message}"))
             }
     }
+
+
 }
