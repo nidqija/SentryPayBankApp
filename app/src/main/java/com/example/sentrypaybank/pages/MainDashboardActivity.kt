@@ -103,11 +103,13 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                 PipelineActivity()
             }
             composable(BottomBarScreen.Payment.route){
-                HomeActivity(viewModel = viewModel)
+                TransactionActivity(viewModel = viewModel)
             }
             composable(BottomBarScreen.Profile.route){
                 HomeActivity(viewModel = viewModel)
             }
+
+
 
 
         }

@@ -14,6 +14,8 @@ sealed class NavBar(val route : String){
 
     object PipelinePage : NavBar("pipeline")
 
+    object TransactionPage : NavBar("transaction")
+
 }
 
 sealed class BottomBarScreen(val route: String , val label : String){
@@ -21,6 +23,10 @@ sealed class BottomBarScreen(val route: String , val label : String){
     object Pipelines : BottomBarScreen("pipelines_tab", "Pipelines")
     object Payment : BottomBarScreen("payment_tab", "Payment")
     object Profile : BottomBarScreen("profile_tab", "Profile")
+
+    object Transaction : BottomBarScreen("transaction_tab" , "Transaction")
+
+
 }
 
 
