@@ -1,5 +1,6 @@
 package com.example.sentrypaybank.backend.remote.data.repository
 
+import androidx.compose.runtime.State
 import com.example.sentrypaybank.backend.remote.data.LoginRequest
 import com.example.sentrypaybank.backend.remote.data.LoginResponse
 import com.example.sentrypaybank.backend.remote.data.SentryPayURLHost
@@ -17,12 +18,14 @@ class AuthRepository(baseURL: String? = null) {
 
     // create a backup state initialized with a placeholder
     // this acts as a fallback if the fetching username data fails on request
-    private val _currentUserName = MutableStateFlow("Sentry User")
     private val _currentUserId = MutableStateFlow<Long?>(null)
 
+    private val _currentFullName = MutableStateFlow("Full Name")
+
     // expose read only stream for composable ui view
-    val currentUserName: StateFlow<String> = _currentUserName.asStateFlow()
     val currentUserId: StateFlow<Long?> = _currentUserId.asStateFlow()
+
+    val currentFullName : StateFlow<String> = _currentFullName.asStateFlow()
 
 
     private val apiService: SentryPayURLHost = if (baseURL != null) {
@@ -57,8 +60,8 @@ class AuthRepository(baseURL: String? = null) {
             val body = response.body()
 
             if (response.isSuccessful && body != null) {
-                _currentUserName.value = usernameInput.trim()
                 _currentUserId.value = body.userId
+                _currentFullName.value = body.userName
                 Result.success(body)
             } else {
                 val errorMsg = response.errorBody()?.string() ?: "Login failed"
