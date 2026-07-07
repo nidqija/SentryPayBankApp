@@ -70,7 +70,7 @@ fun HomeActivity(
 
 
     // 1. Collect the state safely if the viewmodel exists
-    val stateView = viewModel?.loggedInUsername?.collectAsStateWithLifecycle()
+    val stateView = viewModel?.loggedInFullName?.collectAsStateWithLifecycle()
     val userBalanceState = viewModel?.currentBalance?.collectAsStateWithLifecycle()
     val userSubscriptionState = viewModel?.userSubscriptions?.collectAsStateWithLifecycle()
     val userIdState = viewModel?.loggedInUserId?.collectAsStateWithLifecycle() // Observed ID flow
@@ -90,6 +90,7 @@ fun HomeActivity(
         if (userID != null) {
             viewModel?.fetchUserWallet(userID)
             viewModel?.fetchUserSubscriptions(userID)
+
         }
     }
 

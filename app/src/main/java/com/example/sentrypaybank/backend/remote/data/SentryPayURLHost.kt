@@ -20,7 +20,8 @@ data class LoginRequest(val username: String, val password: String)
 data class LoginResponse(
     val token: String,
     val antiPhishingName: String,
-    val userId: Long
+    val userId: Long,
+    val userName: String // must match the exact data payload variables from backend
 )
 
 data class ServicesResponse (

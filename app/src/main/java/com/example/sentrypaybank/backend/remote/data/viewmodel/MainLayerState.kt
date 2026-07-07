@@ -1,6 +1,7 @@
 package com.example.sentrypaybank.backend.remote.data.viewmodel
 
 
+import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sentrypaybank.backend.remote.data.repository.AuthRepository
@@ -18,8 +19,10 @@ class MainViewModel(
     private val walletRepository: WalletRepository,
     private val serviceRepository: ServiceRepository
 ): ViewModel(){
-    val loggedInUsername : StateFlow<String> = authRepository.currentUserName
     val loggedInUserId : StateFlow<Long?> = authRepository.currentUserId
+
+    val loggedInFullName : StateFlow<String> = authRepository.currentFullName
+
     private val _currentBalance = MutableStateFlow(0.0f)
     val currentBalance: StateFlow<Float> = _currentBalance.asStateFlow()
 
