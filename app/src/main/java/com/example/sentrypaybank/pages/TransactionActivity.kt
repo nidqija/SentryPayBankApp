@@ -2,6 +2,7 @@ package com.example.sentrypaybank.pages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -41,8 +42,8 @@ data class ContactUser(
 @Composable
 fun TransactionActivity(
     modifier: Modifier = Modifier,
-    viewModel: TransactionLayerModel = viewModel()
-
+    viewModel: TransactionLayerModel = viewModel(),
+    onContactSelected : (ContactUser) -> Unit = {}
 
 
 ) {
@@ -200,7 +201,8 @@ fun TransactionActivity(
                         contact = contact,
                         fontFamily = IBMPlexSansFontFamily,
                         cardBg = cardBackground,
-                        accentColor = neonGreenAccent
+                        accentColor = neonGreenAccent,
+                        onClick = {onContactSelected(contact)}
                     )
                 }
                 }
@@ -229,13 +231,15 @@ fun ContactRow(
     contact: ContactUser,
     fontFamily: FontFamily,
     cardBg: Color,
-    accentColor: Color
+    accentColor: Color,
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(cardBg, shape = RoundedCornerShape(16.dp))
             .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
+            .clickable{onClick()}
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -302,3 +306,4 @@ fun TransactionActivityPreview() {
         TransactionActivity()
     }
 }
+
