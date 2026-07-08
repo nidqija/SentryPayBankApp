@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,8 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sentrypaybank.R
-import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
+import com.example.sentrypaybank.backend.remote.data.viewmodel.TransactionLayerModel
 import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
 
 // Placeholder data class for Contact
@@ -38,7 +41,8 @@ data class ContactUser(
 @Composable
 fun TransactionActivity(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel? = null
+    viewModel: TransactionLayerModel = viewModel()
+
 
 
 ) {
@@ -77,6 +81,36 @@ fun TransactionActivity(
                 contact.username.contains(searchQuery, ignoreCase = true) ||
                 contact.phoneNumber.contains(searchQuery)
     }
+
+    val userContactListState = viewModel?.userContactLists?.collectAsStateWithLifecycle()
+    val userContactListWrapper = userContactListState?.value
+    val realUserContactList = userContactListWrapper?.userDetails ?: emptyList()
+
+
+    LaunchedEffect(viewModel ) {
+        viewModel?.fetchUserList()
+    }
+
+
+
+    val filteredRealContacts = realUserContactList.filter {
+        contact ->
+        contact.userFullName.contains(searchQuery , ignoreCase = true) ||
+                contact.userName.contains(searchQuery , ignoreCase = true) ||
+                contact.userPhoneNumber.contains(searchQuery, ignoreCase = true)
+    }
+
+    val finalUIContacts = filteredRealContacts.map{detail ->
+        ContactUser(
+            id = detail.userId.toString(),
+            fullName = detail.userFullName,
+            username = detail.userName,
+            phoneNumber = detail.userPhoneNumber
+        )
+    }
+
+
+
 
     Column(
         modifier = modifier
@@ -150,7 +184,18 @@ fun TransactionActivity(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(filteredContacts, key = { it.id }) { contact ->
+
+                if(realUserContactList.isEmpty() && searchQuery.isEmpty()){
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = neonGreenAccent)
+                        }
+                    }
+                } else {
+                items(finalUIContacts, key = { it.id }) { contact ->
                     ContactRow(
                         contact = contact,
                         fontFamily = IBMPlexSansFontFamily,
@@ -158,15 +203,16 @@ fun TransactionActivity(
                         accentColor = neonGreenAccent
                     )
                 }
+                }
 
-                if (filteredContacts.isEmpty()) {
+                if (finalUIContacts.isEmpty() && realUserContactList.isNotEmpty()) {
                     item {
                         Box(
                             modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "No contacts found",
+                                text = "No contacts found for ${searchQuery}",
                                 color = Color.White.copy(alpha = 0.4f),
                                 fontFamily = IBMPlexSansFontFamily
                             )
