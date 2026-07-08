@@ -122,11 +122,38 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
             }
             composable(BottomBarScreen.Payment.route){
                 // parse in as usual
-                TransactionActivity(viewModel = transactionViewModel)
+                TransactionActivity(
+                    viewModel = transactionViewModel,
+                    // nested controller to redirect to another sub api
+                    onContactSelected = {contactUser ->
+                        nestedNavController.navigate("user_transaction/${contactUser.id}/${contactUser.fullName}/${contactUser.phoneNumber}/${contactUser.username}")
+                    }
+                )
+            }
+
+
+            composable(
+                "user_transaction/{userId}/{fullName}/{phoneNumber}/{username}"
+            ){
+                backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId").orEmpty()
+                val fullName = backStackEntry.arguments?.getString("fullName").orEmpty()
+                val phoneNumber = backStackEntry.arguments?.getString("phoneNumber").orEmpty()
+                val username = backStackEntry.arguments?.getString("username").orEmpty()
+
+                UserTransactionActivity(
+                    userId = userId,
+                    fullName = fullName,
+                    phoneNumber = phoneNumber,
+                    userName = username
+                )
             }
             composable(BottomBarScreen.Profile.route){
                 HomeActivity(viewModel = viewModel)
             }
+
+
+
 
 
 
