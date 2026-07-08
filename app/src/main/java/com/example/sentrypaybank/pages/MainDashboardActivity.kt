@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -14,19 +15,36 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.sentrypaybank.R
+import com.example.sentrypaybank.backend.remote.data.repository.AuthRepository
 import com.example.sentrypaybank.navigation.BottomBarScreen
 import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
+import com.example.sentrypaybank.backend.remote.data.viewmodel.TransactionLayerModel
 
 
 @Composable
 fun MainDashboardActivity(viewModel: MainViewModel? = null){
     val nestedNavController = rememberNavController()
+
+    // create a mutable state val variable for repository
+    val repository = remember { AuthRepository() }
+
+    // parse the var to transactionviewmodel , as the model view uses authrepository to fetch data
+    val transactionViewModel : TransactionLayerModel = viewModel (
+        factory = viewModelFactory {
+            initializer {
+                TransactionLayerModel(authRepository = repository)
+            }
+        }
+    )
 
     val navItems = listOf(
         BottomBarScreen.Home,
@@ -103,7 +121,8 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                 PipelineActivity()
             }
             composable(BottomBarScreen.Payment.route){
-                TransactionActivity(viewModel = viewModel)
+                // parse in as usual
+                TransactionActivity(viewModel = transactionViewModel)
             }
             composable(BottomBarScreen.Profile.route){
                 HomeActivity(viewModel = viewModel)
@@ -115,3 +134,4 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
         }
     }
 }
+

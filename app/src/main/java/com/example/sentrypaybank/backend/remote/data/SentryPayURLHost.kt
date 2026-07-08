@@ -46,6 +46,19 @@ data class WalletResponse(
 )
 
 
+data class UserResponse(
+    val userDetails: List<UserDetails>
+) {
+    data class UserDetails(
+        val userId: Long,
+        val userName: String,
+        val userEmail: String,
+        val userFullName: String,
+        val userPhoneNumber: String
+    )
+}
+
+
 data class ServiceSubscriptionResponse(
     // Takes a list of SubscriptionDetails objects
     // We use a list because a user can have multiple service subscriptions
@@ -81,6 +94,10 @@ interface SentryPayURLHost {
 
     @GET("api/users/{userId}/user-services")
     suspend fun getServicesByUser(@Path("userId") userId : Long) : Response<ServiceSubscriptionResponse>
+
+
+    @GET("api/get-users")
+    suspend fun fetchUsers() : Response<UserResponse>
 
     // this is the same as static method
     // instead , it uses companion object

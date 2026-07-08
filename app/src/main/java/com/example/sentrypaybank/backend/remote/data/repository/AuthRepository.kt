@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import com.example.sentrypaybank.backend.remote.data.LoginRequest
 import com.example.sentrypaybank.backend.remote.data.LoginResponse
 import com.example.sentrypaybank.backend.remote.data.SentryPayURLHost
+import com.example.sentrypaybank.backend.remote.data.UserResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -72,5 +73,22 @@ class AuthRepository(baseURL: String? = null) {
         }
     }
 
+    suspend fun fetchUsers() : Result<UserResponse>{
+        return try {
+            val response = apiService.fetchUsers()
+            val body = response.body()
+
+            if (response.isSuccessful && body != null){
+                Result.success(body)
+            } else {
+                val errorMsg = "Error message from terminal : " + response.errorBody()?.string()
+                Result.failure(Exception("$errorMsg (Status: ${response.code()})"))
+            }
+        } catch ( e : Exception){
+            Result.failure(Exception("Network error: ${e.message}"))
+        }
+    }
+
 
 }
+
