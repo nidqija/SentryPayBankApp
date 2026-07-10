@@ -17,12 +17,29 @@ import retrofit2.http.Path
 // define the data transfer objects ( DTO )
 // this data class is to be sent to backend via url defined below
 data class LoginRequest(val username: String, val password: String)
+
+
+
 data class LoginResponse(
     val token: String,
     val antiPhishingName: String,
     val userId: Long,
     val userName: String // must match the exact data payload variables from backend
 )
+
+data class TransactionRequest(
+    val receiverId: String,
+    val amount: Double
+)
+
+data class TransactionResponse(
+    val success: Boolean,
+    val transactionId: String?,
+    val message: String,
+    val timestamp: String
+)
+
+
 
 data class ServicesResponse (
     val serviceName : String,
@@ -76,6 +93,11 @@ data class ServiceSubscriptionResponse(
     )
 }
 
+
+
+
+
+
 // defined the interface
 interface SentryPayURLHost {
 
@@ -84,6 +106,11 @@ interface SentryPayURLHost {
     // suspend fun forcing the function to run asynchronously
     // without disrupting the UI thread
     suspend fun loginUser(@Body request: LoginRequest) : Response<LoginResponse>
+
+
+    @POST("api/user-transactions/{senderId}")
+    suspend fun postTransactionToUser(@Body request: TransactionRequest , @Path("senderId") senderId : Long) : Response<TransactionResponse>
+
 
 
     @GET("api/services")
@@ -96,8 +123,10 @@ interface SentryPayURLHost {
     suspend fun getServicesByUser(@Path("userId") userId : Long) : Response<ServiceSubscriptionResponse>
 
 
+
     @GET("api/get-users")
     suspend fun fetchUsers() : Response<UserResponse>
+
 
     // this is the same as static method
     // instead , it uses companion object

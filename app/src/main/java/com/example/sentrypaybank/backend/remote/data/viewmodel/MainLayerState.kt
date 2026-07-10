@@ -20,6 +20,7 @@ class MainViewModel(
     private val serviceRepository: ServiceRepository
 ): ViewModel(){
     val loggedInUserId : StateFlow<Long?> = authRepository.currentUserId
+    val userId : Long? get() = loggedInUserId.value
 
     val loggedInFullName : StateFlow<String> = authRepository.currentFullName
 

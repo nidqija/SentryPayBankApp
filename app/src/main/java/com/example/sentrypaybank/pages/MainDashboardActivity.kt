@@ -136,15 +136,17 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                 "user_transaction/{userId}/{fullName}/{phoneNumber}/{username}"
             ){
                 backStackEntry ->
-                val userId = backStackEntry.arguments?.getString("userId").orEmpty()
+                val receiverId = backStackEntry.arguments?.getString("userId").orEmpty()
                 val fullName = backStackEntry.arguments?.getString("fullName").orEmpty()
                 val phoneNumber = backStackEntry.arguments?.getString("phoneNumber").orEmpty()
                 val username = backStackEntry.arguments?.getString("username").orEmpty()
+                val currentSenderId = viewModel?.userId ?:1L
 
                 UserTransactionActivity(
-                    userId = userId,
+                    senderId = currentSenderId,
                     fullName = fullName,
                     phoneNumber = phoneNumber,
+                    receiverId = receiverId,
                     userName = username
                 )
             }
