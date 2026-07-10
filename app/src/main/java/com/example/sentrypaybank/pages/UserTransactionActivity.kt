@@ -1,5 +1,6 @@
 package com.example.sentrypaybank.pages
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -21,16 +23,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sentrypaybank.R
+import com.example.sentrypaybank.backend.remote.data.repository.TransactionRepository
 import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun UserTransactionActivity(
     modifier: Modifier = Modifier,
-    userId: String,
+    receiverId: String,
     fullName: String,
     userName : String,
     phoneNumber: String,
-    onTransferClick: (amount: String) -> Unit = {}
+    senderId : Long,
+    repository: TransactionRepository = remember { TransactionRepository() },
+    onTransferClick: (amount: String) -> Unit = {},
+    onTransactionSuccess: () -> Unit = {}
 ) {
     // Exact design tokens from TransactionActivity
     val neonGreenAccent = Color(0xFF00E676)
@@ -50,6 +57,10 @@ fun UserTransactionActivity(
     )
 
     var amountQuery by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Box(
         modifier = modifier
@@ -192,7 +203,33 @@ fun UserTransactionActivity(
 
             // --- TRANSFER BUTTON ---
             Button(
-                onClick = { if (amountQuery.isNotEmpty()) onTransferClick(amountQuery) },
+                onClick = {
+                    val amountDouble = amountQuery.toDoubleOrNull() ?: 0.0
+                    if (amountQuery.isNotEmpty() && amountDouble > 0.0) {
+                        isLoading = true
+                        errorMessage = null
+
+                        scope.launch {
+                            val result = repository.postTransactionToUser(
+                                senderId = senderId,
+                                receiverId = receiverId,
+                                amount = amountDouble
+                            )
+
+                            isLoading = false
+
+                            if (result.isSuccess) {
+                                Toast.makeText(context, "Transfer Successful!", Toast.LENGTH_SHORT)
+                                    .show()
+                                amountQuery = ""
+                                onTransactionSuccess()
+                            } else {
+                                errorMessage = result.exceptionOrNull()?.message
+                                    ?: "An unexpected network error occurred"
+                            }
+                        }
+                    }
+                },
                 enabled = amountQuery.isNotEmpty() && amountQuery.toDoubleOrNull() ?: 0.0 > 0.0,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -204,6 +241,7 @@ fun UserTransactionActivity(
                     disabledContainerColor = Color.White.copy(alpha = 0.1f),
                     disabledContentColor = Color.White.copy(alpha = 0.3f)
                 )
+
             ) {
                 Text(
                     text = "Confirm & Transfer",
@@ -221,10 +259,11 @@ fun UserTransactionActivity(
 fun UserTransactionActivityPreview() {
     SentryPayBankTheme {
         UserTransactionActivity(
-            userId = "12345",
+            senderId = 1L,
             fullName = "John Doe",
             userName = "johnthepork",
-            phoneNumber = "+1234567890"
+            phoneNumber = "+1234567890",
+            receiverId = "12345"
         )
     }
 }
