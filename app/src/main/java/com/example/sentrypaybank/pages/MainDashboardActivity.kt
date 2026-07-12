@@ -140,9 +140,13 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                 val fullName = backStackEntry.arguments?.getString("fullName").orEmpty()
                 val phoneNumber = backStackEntry.arguments?.getString("phoneNumber").orEmpty()
                 val username = backStackEntry.arguments?.getString("username").orEmpty()
+
+
                 val currentSenderId = viewModel?.userId ?:1L
 
                 UserTransactionActivity(
+
+                    // pass the id according to its data types
                     senderId = currentSenderId,
                     fullName = fullName,
                     phoneNumber = phoneNumber,

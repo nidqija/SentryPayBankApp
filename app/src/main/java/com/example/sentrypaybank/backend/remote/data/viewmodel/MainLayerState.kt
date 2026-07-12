@@ -20,6 +20,8 @@ class MainViewModel(
     private val serviceRepository: ServiceRepository
 ): ViewModel(){
     val loggedInUserId : StateFlow<Long?> = authRepository.currentUserId
+
+    // change the loggedin user id from any type to long time to be parsed to request dto class
     val userId : Long? get() = loggedInUserId.value
 
     val loggedInFullName : StateFlow<String> = authRepository.currentFullName

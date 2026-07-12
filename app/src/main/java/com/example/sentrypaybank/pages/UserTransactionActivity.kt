@@ -22,6 +22,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.sentrypaybank.R
 import com.example.sentrypaybank.backend.remote.data.repository.TransactionRepository
 import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
@@ -37,8 +39,10 @@ fun UserTransactionActivity(
     senderId : Long,
     repository: TransactionRepository = remember { TransactionRepository() },
     onTransferClick: (amount: String) -> Unit = {},
-    onTransactionSuccess: () -> Unit = {}
-) {
+    onTransactionSuccess: () -> Unit = {},
+    onNavigateToHome: () -> Unit = {}
+
+    ) {
     // Exact design tokens from TransactionActivity
     val neonGreenAccent = Color(0xFF00E676)
     val cardBackground = Color(0xFF1F2937).copy(alpha = 0.4f)
@@ -59,6 +63,7 @@ fun UserTransactionActivity(
     var amountQuery by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
+    var isSuccessOpen by remember {mutableStateOf(false)}
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -216,6 +221,8 @@ fun UserTransactionActivity(
                                 amount = amountDouble
                             )
 
+
+
                             isLoading = false
 
                             if (result.isSuccess) {
@@ -223,6 +230,7 @@ fun UserTransactionActivity(
                                     .show()
                                 amountQuery = ""
                                 onTransactionSuccess()
+                                isSuccessOpen = true
                             } else {
                                 errorMessage = result.exceptionOrNull()?.message
                                     ?: "An unexpected network error occurred"
@@ -251,6 +259,62 @@ fun UserTransactionActivity(
                 )
             }
         }
+
+        if(isLoading){
+            Dialog(
+                onDismissRequest = {},
+                properties = DialogProperties(dismissOnBackPress = false , dismissOnClickOutside = false)
+            ){
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .background(Color(0xFF1F2937), shape = RoundedCornerShape(16.dp)),
+                    contentAlignment = Alignment.Center
+                ){
+                    CircularProgressIndicator(color = neonGreenAccent)
+                }
+            }
+
+        }
+
+        if(isSuccessOpen){
+            AlertDialog(
+                onDismissRequest = {},
+                containerColor = Color(0xFF1F2937),
+                title = {
+                    Text(
+                        text = "Transaction Complete",
+                        color = Color.White,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = IBMPlexSansFontFamily
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Your money has been successfully transferred to $fullName.",
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontFamily = IBMPlexSansFontFamily
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            isSuccessOpen = false
+                            onNavigateToHome()
+                        }
+                    ){
+                        Text(
+                            text = "Done",
+                            color = neonGreenAccent,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = IBMPlexSansFontFamily
+                        )
+                    }
+                }
+
+            )
+        }
+
     }
 }
 
@@ -267,3 +331,4 @@ fun UserTransactionActivityPreview() {
         )
     }
 }
+
