@@ -225,6 +225,7 @@ fun UserTransactionActivity(
 
                             isLoading = false
 
+                            // if frontend gets a response from kotlin repository
                             if (result.isSuccess) {
                                 Toast.makeText(context, "Transfer Successful!", Toast.LENGTH_SHORT)
                                     .show()
