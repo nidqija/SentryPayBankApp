@@ -109,7 +109,7 @@ interface SentryPayURLHost {
 
 
     @POST("api/user-transactions/{senderId}")
-    suspend fun postTransactionToUser(@Body request: TransactionRequest , @Path("senderId") senderId : Long) : Response<TransactionResponse>
+    suspend fun postTransactionToUser(@Body request: TransactionRequest , @Path("senderId") senderId : Long) : Response<String>
 
 
 
@@ -144,6 +144,7 @@ interface SentryPayURLHost {
 
             Retrofit.Builder()
                 .baseUrl(BASE_URL) // parse the url to the builder
+                .addConverterFactory(retrofit2.converter.scalars.ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(client)
                 .build() // build the retrofit engine

@@ -7,6 +7,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 class TransactionRepository(baseURL : String? = null) {
     private val apiService: SentryPayURLHost = if (baseURL != null) {
@@ -19,6 +20,7 @@ class TransactionRepository(baseURL : String? = null) {
 
         Retrofit.Builder()
             .baseUrl(baseURL)
+            .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
@@ -28,7 +30,7 @@ class TransactionRepository(baseURL : String? = null) {
     }
 
 
-    suspend fun postTransactionToUser( senderId : Long ,amount : Double , receiverId : String): Result<TransactionResponse>{
+    suspend fun postTransactionToUser( senderId : Long ,amount : Double , receiverId : String): Result<String>{
 
 
         return try {
