@@ -20,7 +20,7 @@ class TransactionRepository(baseURL : String? = null) {
 
         Retrofit.Builder()
             .baseUrl(baseURL)
-            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(ScalarsConverterFactory.create()) // add scalars converter to accept customized response ( string based )
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
@@ -45,7 +45,7 @@ class TransactionRepository(baseURL : String? = null) {
 
             if (response.isSuccessful && body != null){
 
-                Result.success(body)
+                Result.success(body) // receive the result in string and ping the success state to ui
 
             } else {
                 val errorMsg = response.errorBody()?.string() ?: "Login failed"
