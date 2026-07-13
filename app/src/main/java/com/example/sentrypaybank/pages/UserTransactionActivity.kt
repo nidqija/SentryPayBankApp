@@ -229,7 +229,7 @@ fun UserTransactionActivity(
                                 Toast.makeText(context, "Transfer Successful!", Toast.LENGTH_SHORT)
                                     .show()
                                 amountQuery = ""
-                                onTransactionSuccess()
+                              //  onTransactionSuccess()
                                 isSuccessOpen = true
                             } else {
                                 errorMessage = result.exceptionOrNull()?.message
@@ -312,6 +312,41 @@ fun UserTransactionActivity(
                     }
                 }
 
+            )
+        }
+
+        if (errorMessage != null) {
+            AlertDialog(
+                onDismissRequest = { errorMessage = null },
+
+                containerColor = Color(0xFF1F2937),
+                title = {
+                    Text(
+                        text = "System Notice",
+                        color = Color.Red,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = IBMPlexSansFontFamily
+                    )
+                },
+                text = {
+                    Text(
+                        text = errorMessage ?: "An unknown system event occurred.",
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontFamily = IBMPlexSansFontFamily
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = { errorMessage = null }
+                    ) {
+                        Text(
+                            text = "Dismiss",
+                            color = neonGreenAccent,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = IBMPlexSansFontFamily
+                        )
+                    }
+                }
             )
         }
 
