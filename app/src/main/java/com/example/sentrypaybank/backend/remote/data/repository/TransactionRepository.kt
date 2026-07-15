@@ -1,6 +1,7 @@
 package com.example.sentrypaybank.backend.remote.data.repository
 
 import com.example.sentrypaybank.backend.remote.data.SentryPayURLHost
+import com.example.sentrypaybank.backend.remote.data.TransactionHistoryResponse
 import com.example.sentrypaybank.backend.remote.data.TransactionRequest
 import com.example.sentrypaybank.backend.remote.data.TransactionResponse
 import okhttp3.OkHttpClient
@@ -58,10 +59,23 @@ class TransactionRepository(baseURL : String? = null) {
     }
 
 
-  /*  suspend fun fetchTransactionHistory() : Result<TransactionResponse>{
+  suspend fun fetchTransactionHistory(userId: Long) : Result<List<TransactionHistoryResponse>>{
+     return try {
+         val response = apiService.fetchTransactionHistory(userId)
+
+         val body = response.body()
+
+         if(response.isSuccessful && body != null){
+             Result.success(body)
+         } else {
+             Result.failure(Exception("Fetching error"))
+         }
+     } catch (e : Exception){
+         Result.failure(Exception("Network error: ${e.message}"))
+
+     }
 
 
-
-    }*/
+    }
 
 }

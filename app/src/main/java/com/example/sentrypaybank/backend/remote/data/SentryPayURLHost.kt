@@ -98,11 +98,11 @@ data class ServiceSubscriptionResponse(
 
 
 data class TransactionHistoryResponse(
-    val transactionId: String,
-    val senderId: String,
-    val receiverId: String,
-    val amount: BigDecimal,
-    val createdAt: LocalDateTime
+    @SerializedName("transactionId")    val transactionId: String,
+    @SerializedName("senderId")    val senderId: String,
+    @SerializedName("receiverId")  val receiverId: String,
+    @SerializedName("amount")      val amount: BigDecimal,
+    @SerializedName("createdAt")   val createdAt: String
 )
 
 
@@ -124,7 +124,7 @@ interface SentryPayURLHost {
     suspend fun postTransactionToUser(@Body request: TransactionRequest , @Path("senderId") senderId : Long) : Response<String>
 
     @GET("api/get-recent-transactions/{userId}")
-    suspend fun fetchTransactionHistory(@Path("userId") userId : Long) : Response<TransactionHistoryResponse>
+    suspend fun fetchTransactionHistory(@Path("userId") userId : Long) : Response<List<TransactionHistoryResponse>>
 
 
 
@@ -167,3 +167,4 @@ interface SentryPayURLHost {
         }
     }
 }
+
