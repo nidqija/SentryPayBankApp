@@ -25,6 +25,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.sentrypaybank.R
 import com.example.sentrypaybank.backend.remote.data.repository.AuthRepository
+import com.example.sentrypaybank.backend.remote.data.repository.TransactionRepository
 import com.example.sentrypaybank.navigation.BottomBarScreen
 import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
 import com.example.sentrypaybank.backend.remote.data.viewmodel.TransactionLayerModel
@@ -38,12 +39,13 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
 
     // create a mutable state val variable for repository
     val repository = remember { AuthRepository() }
+    val transactionRepository = remember { TransactionRepository() }
 
     // parse the var to transactionviewmodel , as the model view uses authrepository to fetch data
     val transactionViewModel : TransactionLayerModel = viewModel (
         factory = viewModelFactory {
             initializer {
-                TransactionLayerModel(authRepository = repository)
+                TransactionLayerModel(authRepository = repository , transactionRepository = transactionRepository)
             }
         }
     )
@@ -189,6 +191,8 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
             // define the custom route to be called by other functions
             composable("recent_transactions"){
 
+                // fetch the logged-in user id from main state model
+                val loggedInUserId = viewModel?.userId ?: 1L
                 // create a mock data
                 val now = System.currentTimeMillis()
                 val hourInMillis = 3600000L
@@ -214,8 +218,8 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                 )
                 // instantiate the object based on the desired arguments defined in the recent transaction frontend page
                 RecentTransactionActivity(
-                    currentUserId = "USER_123",
-                    transactions = mockTransactions
+                    viewModel = transactionViewModel,
+                    userId = loggedInUserId
                 )
             }
 
@@ -230,4 +234,6 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
         }
     }
 }
+
+
 

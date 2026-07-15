@@ -9,6 +9,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,7 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sentrypaybank.R
+import com.example.sentrypaybank.backend.remote.data.viewmodel.TransactionLayerModel
 import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -37,9 +43,40 @@ data class RecentTransaction(
 @Composable
 fun RecentTransactionActivity(
     modifier: Modifier = Modifier,
-    currentUserId: String = "USER_123", // Used to determine if a transaction is Incoming or Outgoing
-    transactions: List<RecentTransaction> = emptyList()
-) {
+    currentUserId: String? = null, // Changed to nullable to use userId if not provided
+    transactions: List<RecentTransaction> = emptyList(),
+    userId : Long,
+    viewModel: TransactionLayerModel = viewModel(),
+    ) {
+
+    val currentUserIdString = currentUserId ?: userId.toString()
+
+    val historyResponseState = viewModel.userTransactionHistory.collectAsStateWithLifecycle()
+    val historyResponse = historyResponseState.value
+    val errorState by viewModel.errorState.collectAsStateWithLifecycle()
+
+    val displayTransactions = remember(historyResponse, transactions) {
+        if (transactions.isNotEmpty()) {
+            transactions
+        } else {
+            historyResponse.map { detail ->
+                RecentTransaction(
+                    transactionId = detail.transactionId,
+                    senderId = detail.senderId,
+                    receiverId = detail.receiverId,
+                    amount = detail.amount,
+                    createdAt = try {
+                        LocalDateTime.parse(detail.createdAt)
+                    } catch (e: Exception) {
+                        LocalDateTime.now() // Fallback
+                    }
+                )
+            }
+        }
+    }
+
+
+
     // Style alignments pulled directly from your theme profile
     val neonGreenAccent = Color(0xFF00E676)
     val cardBackground = Color(0xFF1F2937).copy(alpha = 0.4f)
@@ -57,6 +94,10 @@ fun RecentTransactionActivity(
         Font(resId = R.font.ibmplexsans_regular, weight = FontWeight.Normal),
         Font(resId = R.font.ibmplexsans_semibold, weight = FontWeight.SemiBold)
     )
+
+    LaunchedEffect(userId) {
+            viewModel.fetchTransactionHistory(userId)
+    }
 
     Column(
         modifier = modifier
@@ -87,9 +128,17 @@ fun RecentTransactionActivity(
             )
         }
 
+        if (errorState != null) {
+            Text(
+                text = "Error: $errorState",
+                color = Color.Red,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (transactions.isEmpty()) {
+        if (displayTransactions.isEmpty()) {
             // Empty State Handling
             Box(
                 modifier = Modifier
@@ -98,7 +147,7 @@ fun RecentTransactionActivity(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No recent transactions found.",
+                    text = if (errorState == null) "No recent transactions found." else "Failed to load transactions.",
                     color = Color.White.copy(alpha = 0.4f),
                     fontFamily = IBMPlexSansFontFamily,
                     fontSize = 16.sp
@@ -110,8 +159,8 @@ fun RecentTransactionActivity(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(bottom = 24.dp)
             ) {
-                items(transactions) { transaction ->
-                    val isIncoming = transaction.receiverId == currentUserId
+                items(displayTransactions) { transaction ->
+                    val isIncoming = transaction.receiverId.trim().equals(currentUserIdString.trim(), ignoreCase = true)
                     val dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a")
                     val formattedDate = transaction.createdAt.format(dateFormatter)
 
@@ -146,7 +195,11 @@ fun RecentTransactionActivity(
                                     modifier = Modifier
                                         .size(10.dp)
                                         .background(
-                                            color = if (isIncoming) neonGreenAccent else Color.White.copy(alpha = 0.4f),
+                                            color = if (isIncoming){
+                                                neonGreenAccent
+                                            } else {
+                                                Color.White.copy(alpha = 0.4f)
+                                            },
                                             shape = CircleShape
                                         )
                                 )
@@ -155,7 +208,11 @@ fun RecentTransactionActivity(
 
                                 Column {
                                     Text(
-                                        text = if (isIncoming) "Received from ${transaction.senderId}" else "Sent to ${transaction.receiverId}",
+                                        text = if (isIncoming){
+                                            "Received from ${transaction.senderId}"
+                                        } else {
+                                            "Sent to ${transaction.receiverId}"
+                                        },
                                         color = Color.White,
                                         fontFamily = IBMPlexSansFontFamily,
                                         fontWeight = FontWeight.Medium,
@@ -174,8 +231,16 @@ fun RecentTransactionActivity(
 
                             // Right Side: Signed Amount readouts
                             Text(
-                                text = if (isIncoming) "+$${transaction.amount}" else "-$${transaction.amount}",
-                                color = if (isIncoming) neonGreenAccent else Color.White,
+                                text = if (isIncoming) {
+                                    "+$${transaction.amount}"
+                                } else {
+                                    "-$${transaction.amount}"
+                                },
+                                color = if (isIncoming){
+                                    neonGreenAccent
+                                } else {
+                                    Color.White
+                                },
                                 fontFamily = IBMPlexSansFontFamily,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 16.sp,
@@ -227,7 +292,8 @@ fun RecentTransitionPreview() {
     SentryPayBankTheme {
         RecentTransactionActivity(
             currentUserId = "USER_123",
-            transactions = mockTransactions
+            transactions = mockTransactions,
+            userId = 1L
         )
     }
 }
