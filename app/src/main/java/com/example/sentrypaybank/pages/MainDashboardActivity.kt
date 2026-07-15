@@ -28,6 +28,8 @@ import com.example.sentrypaybank.backend.remote.data.repository.AuthRepository
 import com.example.sentrypaybank.navigation.BottomBarScreen
 import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
 import com.example.sentrypaybank.backend.remote.data.viewmodel.TransactionLayerModel
+import java.math.BigDecimal
+import java.time.LocalDateTime
 
 
 @Composable
@@ -127,6 +129,32 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                     // nested controller to redirect to another sub api
                     onContactSelected = {contactUser ->
                         nestedNavController.navigate("user_transaction/${contactUser.id}/${contactUser.fullName}/${contactUser.phoneNumber}/${contactUser.username}")
+                    },
+                    onNavigateToRecentTransaction = {
+                        val now = System.currentTimeMillis()
+                        val hourInMillis = 3600000L
+                        val dayInMillis = 86400000L
+
+                        val mockTransactions = listOf(
+                            RecentTransaction(
+                                transactionId = "TXN001",
+                                senderId = "AMZ-MARKETPLACE",
+                                receiverId = "USER_123",
+                                amount = BigDecimal("150.00"),
+                                createdAt = LocalDateTime.now().minusHours(2)
+                            ),
+                            RecentTransaction(
+                                transactionId = "TXN002",
+                                senderId = "USER_123",
+                                receiverId = "PIPELINE-RENEWAL",
+                                amount = BigDecimal("24.99"),
+                                createdAt = LocalDateTime.now().minusDays(1)
+                            )
+                        )
+
+                        nestedNavController.navigate("recent_transactions")
+
+
                     }
                 )
             }
@@ -157,6 +185,41 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
             composable(BottomBarScreen.Profile.route){
                 HomeActivity(viewModel = viewModel)
             }
+
+            // define the custom route to be called by other functions
+            composable("recent_transactions"){
+
+                // create a mock data
+                val now = System.currentTimeMillis()
+                val hourInMillis = 3600000L
+                val dayInMillis = 86400000L
+
+                // include a mock list
+                val mockTransactions = listOf(
+                    RecentTransaction(
+                        transactionId = "TXN001",
+                        senderId = "AMZ-MARKETPLACE",
+                        receiverId = "USER_123",
+                        amount = BigDecimal("150.00"),
+                        createdAt = LocalDateTime.now().minusHours(2)
+                    ),
+
+                    RecentTransaction(
+                        transactionId = "TXN002",
+                        senderId = "USER_123",
+                        receiverId = "PIPELINE-RENEWAL",
+                        amount = BigDecimal("24.99"),
+                        createdAt = LocalDateTime.now().minusDays(1)
+                    )
+                )
+                // instantiate the object based on the desired arguments defined in the recent transaction frontend page
+                RecentTransactionActivity(
+                    currentUserId = "USER_123",
+                    transactions = mockTransactions
+                )
+            }
+
+
 
 
 

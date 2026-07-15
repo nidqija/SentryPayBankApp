@@ -2,6 +2,7 @@ package com.example.sentrypaybank.backend.remote.data
 
 
 import android.app.Service
+import com.example.sentrypaybank.pages.RecentTransaction
 import com.example.sentrypaybank.pages.ServicesItem
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -13,6 +14,8 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.Path
+import java.math.BigDecimal
+import java.time.LocalDateTime
 
 // define the data transfer objects ( DTO )
 // this data class is to be sent to backend via url defined below
@@ -94,6 +97,15 @@ data class ServiceSubscriptionResponse(
 }
 
 
+data class TransactionHistoryResponse(
+    val transactionId: String,
+    val senderId: String,
+    val receiverId: String,
+    val amount: BigDecimal,
+    val createdAt: LocalDateTime
+)
+
+
 
 
 
@@ -110,6 +122,9 @@ interface SentryPayURLHost {
 
     @POST("api/user-transactions/{senderId}")
     suspend fun postTransactionToUser(@Body request: TransactionRequest , @Path("senderId") senderId : Long) : Response<String>
+
+    @GET("api/get-recent-transactions/{userId}")
+    suspend fun fetchTransactionHistory(@Path("userId") userId : Long) : Response<TransactionHistoryResponse>
 
 
 
