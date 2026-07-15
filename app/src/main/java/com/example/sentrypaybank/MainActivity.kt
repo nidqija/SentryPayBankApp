@@ -98,5 +98,9 @@ fun SetryPayAppNavigation(modifier: Modifier = Modifier){
         composable(NavBar.HomePage.route){
             MainDashboardActivity(viewModel = mainViewModel)
         }
+
+
+
+
     }
 }

@@ -43,7 +43,9 @@ data class ContactUser(
 fun TransactionActivity(
     modifier: Modifier = Modifier,
     viewModel: TransactionLayerModel = viewModel(),
-    onContactSelected : (ContactUser) -> Unit = {}
+    onContactSelected : (ContactUser) -> Unit = {},
+    onNavigateToRecentTransaction: () -> Unit = {}
+
 
 
 ) {
@@ -140,6 +142,19 @@ fun TransactionActivity(
             )
 
             Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {
+                    onNavigateToRecentTransaction()
+                },
+                modifier = Modifier.
+                fillMaxWidth()
+                    .padding(12.dp)
+            ){
+                Text(
+                    text = "Recent Transactions"
+                )
+            }
 
             OutlinedTextField(
                 value = searchQuery,

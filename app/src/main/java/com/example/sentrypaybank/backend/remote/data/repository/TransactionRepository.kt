@@ -56,4 +56,12 @@ class TransactionRepository(baseURL : String? = null) {
         }
 
     }
+
+
+  /*  suspend fun fetchTransactionHistory() : Result<TransactionResponse>{
+
+
+
+    }*/
+
 }
