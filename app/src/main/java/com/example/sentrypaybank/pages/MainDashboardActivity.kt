@@ -186,11 +186,15 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                 HomeActivity(viewModel = viewModel)
             }
 
+            // define the custom route to be called by other functions
             composable("recent_transactions"){
+
+                // create a mock data
                 val now = System.currentTimeMillis()
                 val hourInMillis = 3600000L
                 val dayInMillis = 86400000L
 
+                // include a mock list
                 val mockTransactions = listOf(
                     RecentTransaction(
                         transactionId = "TXN001",
@@ -199,6 +203,7 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                         amount = BigDecimal("150.00"),
                         createdAt = LocalDateTime.now().minusHours(2)
                     ),
+
                     RecentTransaction(
                         transactionId = "TXN002",
                         senderId = "USER_123",
@@ -207,7 +212,7 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                         createdAt = LocalDateTime.now().minusDays(1)
                     )
                 )
-
+                // instantiate the object based on the desired arguments defined in the recent transaction frontend page
                 RecentTransactionActivity(
                     currentUserId = "USER_123",
                     transactions = mockTransactions
