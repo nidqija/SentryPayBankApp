@@ -32,6 +32,8 @@ class MainViewModel(
     private val _userSubscriptions = MutableStateFlow<ServiceSubscriptionResponse?>(null)
     val userSubscriptions : StateFlow<ServiceSubscriptionResponse?> = _userSubscriptions.asStateFlow()
 
+    val subscriptionId = userSubscriptions.value;
+
 
 
     private val _errorState = MutableStateFlow<String?>(null)

@@ -107,9 +107,6 @@ data class TransactionHistoryResponse(
 
 
 
-
-
-
 // defined the interface
 interface SentryPayURLHost {
 
@@ -136,6 +133,8 @@ interface SentryPayURLHost {
 
     @GET("api/users/{userId}/user-services")
     suspend fun getServicesByUser(@Path("userId") userId : Long) : Response<ServiceSubscriptionResponse>
+
+
 
 
 

@@ -77,4 +77,4 @@ class ServiceRepository(baseURL : String? = null) {
             Result.failure(Exception("Network error: ${e.message}"))
         }
     }
-}
+    }

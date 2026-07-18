@@ -29,8 +29,10 @@ import com.example.sentrypaybank.backend.remote.data.repository.TransactionRepos
 import com.example.sentrypaybank.navigation.BottomBarScreen
 import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
 import com.example.sentrypaybank.backend.remote.data.viewmodel.TransactionLayerModel
+import com.example.sentrypaybank.navigation.BottomBarScreen.Home
 import java.math.BigDecimal
 import java.time.LocalDateTime
+import kotlin.math.log
 
 
 @Composable
@@ -119,7 +121,13 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
         ){
 
             composable(BottomBarScreen.Home.route){
-                HomeActivity(viewModel = viewModel)
+                HomeActivity(
+                    viewModel = viewModel,
+                    onNavigatetoSubscriptionDetails = {
+                        selectedId ->
+                        nestedNavController.navigate("subscription-details/${selectedId}")
+                    }
+                )
             }
             composable(BottomBarScreen.Pipelines.route){
                 PipelineActivity()
@@ -221,6 +229,22 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                     viewModel = transactionViewModel,
                     userId = loggedInUserId
                 )
+            }
+
+            composable("subscription-details/{subscriptionId}"){
+                backStackEntry ->
+                val targetId = backStackEntry.arguments?.getString("subscriptionId").orEmpty()
+
+                ViewPipeLineActivity(
+                    subscriptionId = targetId,
+                    viewModel = viewModel,
+                    onBackClick = {
+                        nestedNavController.navigate(Home.route){
+                            popUpTo(Home.route){inclusive= true}
+                        }
+                    }
+                )
+
             }
 
 

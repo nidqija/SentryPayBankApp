@@ -2,6 +2,7 @@ package com.example.sentrypaybank.pages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toString
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -48,7 +50,8 @@ data class NavItem(val label: String)
 fun HomeActivity(
     modifier: Modifier = Modifier,
     onNavigateToSignIn: () -> Unit = {},
-    viewModel: MainViewModel? = null
+    viewModel: MainViewModel? = null,
+    onNavigatetoSubscriptionDetails : (String) -> Unit = {}
 ) {
 
     val neonGreenAccent = Color(0xFF00E676)
@@ -230,6 +233,9 @@ fun HomeActivity(
                             .fillMaxWidth()
                             .background(cardBackground, RoundedCornerShape(14.dp))
                             .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(14.dp))
+                            .clickable{
+                                onNavigatetoSubscriptionDetails(subscription.subscriptionId.toString())
+                            }
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ){
@@ -310,3 +316,4 @@ fun HomeActivityPreview() {
         HomeActivity()
     }
 }
+
