@@ -218,7 +218,11 @@ fun ViewPipeLineActivity(
                     PipelineDetailRow(
                         label = "Link Status",
                         value = subscriptionStatus.replaceFirstChar { it.uppercase() },
-                        valueColor = neonGreenAccent,
+                        valueColor = if(subscriptionStatus == "Active"){
+                            neonGreenAccent
+                        } else {
+                            Color.Red
+                        },
                         fontFamily = IBMPlexSansFontFamily
                     )
 
