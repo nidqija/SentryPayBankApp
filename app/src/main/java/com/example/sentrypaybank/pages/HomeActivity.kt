@@ -282,14 +282,26 @@ fun HomeActivity(
                             Text(
                                 text = subscription.subscriptionStatus.replaceFirstChar { it.uppercase() },
                                 fontSize = 11.sp,
-                                color = neonGreenAccent,
+                                color = if (subscription.subscriptionStatus.replaceFirstChar { it.uppercase() } == "Active") {
+                                    neonGreenAccent
+                                } else {
+                                    Color.Red
+                                },
                                 fontFamily = IBMPlexSansFontFamily
                             )
 
                             Text(
-                                text = "Renew on ${subscription.subscriptionEndDate.toString()}",
+                                text = if(subscription.subscriptionStatus.replaceFirstChar { it.uppercase() } == "Active"){
+                                    "Renew on ${subscription.subscriptionEndDate.toString()}"
+                                } else {
+                                    "Ended on ${subscription.subscriptionEndDate.toString()}"
+                                },
                                 fontSize = 11.sp,
-                                color = neonGreenAccent,
+                                color = if (subscription.subscriptionStatus.replaceFirstChar { it.uppercase() } == "Active") {
+                                    neonGreenAccent
+                                } else {
+                                    Color.Red
+                                },
                                 fontFamily = IBMPlexSansFontFamily
                             )
 

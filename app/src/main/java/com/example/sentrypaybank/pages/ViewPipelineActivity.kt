@@ -1,6 +1,7 @@
 
 package com.example.sentrypaybank.pages
 
+import android.app.Service
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,6 +12,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toLong
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -24,20 +31,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sentrypaybank.R
+import com.example.sentrypaybank.backend.remote.data.repository.ServiceRepository
+import com.example.sentrypaybank.backend.remote.data.repository.TransactionRepository
 import com.example.sentrypaybank.backend.remote.data.viewmodel.MainViewModel
 import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun ViewPipeLineActivity(
     subscriptionId: String,
     viewModel: MainViewModel?,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    repository: ServiceRepository = remember { ServiceRepository() }
 ) {
+    val coroutineScope = rememberCoroutineScope()
     // --- DESIGN SYSTEM CORES ---
     val neonGreenAccent = Color(0xFF00E676)
     val cardBackground = Color(0xFF1F2937).copy(alpha = 0.4f)
     val errorRed = Color(0xFFFF5252)
+    var showSeverDialog by remember { mutableStateOf(false) }
+
+
 
     val gxBankBackgroundGradient = Brush.verticalGradient(
         colors = listOf(
@@ -56,6 +71,8 @@ fun ViewPipeLineActivity(
     // --- STATE GRAB ---
     val userSubscriptionState = viewModel?.userSubscriptions?.collectAsStateWithLifecycle()
     val realSubscriptions = userSubscriptionState?.value?.serviceSubscriptions ?: emptyList()
+    val loggedinUserId = viewModel?.userId
+    val serviceIdString = viewModel?.subscriptionId.toString()
 
     // Find the specific item passed via ID
     val subscription = realSubscriptions.find { (it.subscriptionId).toString() == subscriptionId }
@@ -78,6 +95,7 @@ fun ViewPipeLineActivity(
     val subscriptionStatus = subscription?.subscriptionStatus ?: if (isPreview) "active" else ""
     val endDate = subscription?.subscriptionEndDate?.toString() ?: if (isPreview) "July 12, 2026" else ""
     val initial = serviceName.take(1).uppercase()
+
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -240,24 +258,109 @@ fun ViewPipeLineActivity(
             }
 
             OutlinedButton(
-                onClick = { /* Action to kill pipeline connection */ },
+                onClick = {
+                    showSeverDialog = true
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = errorRed),
                 border = BorderStroke(1.dp, errorRed.copy(alpha = 0.4f)),
                 shape = RoundedCornerShape(14.dp)
+
             ) {
                 Text(
                     text = "Sever Pipeline Connection",
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 15.sp,
                     fontFamily = IBMPlexSansFontFamily
+
+
                 )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+
+    if (showSeverDialog){
+        AlertDialog(
+            onDismissRequest = {showSeverDialog = false},
+            containerColor = Color(0xFF1F2937),
+            shape = RoundedCornerShape(20.dp),
+            title = {
+                Text(
+                    text = "Sever Pipeline Connection?",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    fontFamily = IBMPlexSansFontFamily
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to disconnect this pipeline? $serviceName will no longer be able to automatically process charges against your account.",
+                    fontSize = 14.sp,
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontFamily = IBMPlexSansFontFamily
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showSeverDialog = false
+                        val userId = viewModel?.loggedInUserId?.value
+
+                        if (userId != null){
+
+                            val formattedServiceId = if (subscriptionId.startsWith("service_")){
+                                subscriptionId
+                            } else {
+                                "service_$subscriptionId"
+                            }
+                            coroutineScope.launch {
+                                val result = repository.cancelPaymentTransaction(
+                                    userIdLong = userId,
+                                    serviceIdString = formattedServiceId
+                                )
+
+                                result.onSuccess {
+                                    viewModel.fetchUserSubscriptions(userId)
+                                    onBackClick()
+                                }.onFailure{
+                                    error ->
+                                }
+                            }
+                        }
+                    }
+                ) {
+                    Text(
+                        text = "Sever Connection",
+                        color = errorRed,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        fontFamily = IBMPlexSansFontFamily
+                    )
+                }
+            },
+
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showSeverDialog = false
+                    }
+                ){
+                    Text(
+                        text = "Cancel",
+                        color = Color.White.copy(alpha = 0.5f),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        fontFamily = IBMPlexSansFontFamily
+                    )
+                }
+            }
+
+        )
     }
 }
 
@@ -300,4 +403,5 @@ fun ViewPipelinePreview(){
         )
     }
 }
+
 

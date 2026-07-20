@@ -35,6 +35,18 @@ data class TransactionRequest(
     val amount: Double
 )
 
+data class CancelTransactionRequest(
+    @SerializedName("userId")
+    val userId: Long?,
+
+    @SerializedName("serviceId")
+    val serviceId : String
+)
+
+data class CancelTransactionResponse(
+    var successMessage : String
+)
+
 data class TransactionResponse(
     val success: Boolean,
     val transactionId: String?,
@@ -119,6 +131,13 @@ interface SentryPayURLHost {
 
     @POST("api/user-transactions/{senderId}")
     suspend fun postTransactionToUser(@Body request: TransactionRequest , @Path("senderId") senderId : Long) : Response<String>
+
+    @POST("api/users/{userId}/cancel-subscription-payment/{serviceId}")
+    suspend fun cancelSubscriptionPayment(
+        @Path("userId") userId: Long,
+        @Path("serviceId") serviceId: String,
+        @Body request: CancelTransactionRequest
+    ): Response<CancelTransactionResponse>
 
     @GET("api/get-recent-transactions/{userId}")
     suspend fun fetchTransactionHistory(@Path("userId") userId : Long) : Response<List<TransactionHistoryResponse>>
