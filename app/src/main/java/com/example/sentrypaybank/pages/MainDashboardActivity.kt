@@ -130,7 +130,11 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                 )
             }
             composable(BottomBarScreen.Pipelines.route){
-                PipelineActivity()
+                PipelineActivity(
+                    onNavigateToPipelineById = { selectedServiceId ->
+                        nestedNavController.navigate("service-details/$selectedServiceId")
+                    }
+                )
             }
             composable(BottomBarScreen.Payment.route){
                 // parse in as usual
@@ -244,6 +248,15 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
                         }
                     }
                 )
+
+            }
+
+            composable("service-details/{subscriptionId}"){
+                backStackEntry ->
+                val targetId = backStackEntry.arguments?.getString("serviceId").orEmpty()
+
+                ViewPipelinetoSubscribeActivity()
+
 
             }
 

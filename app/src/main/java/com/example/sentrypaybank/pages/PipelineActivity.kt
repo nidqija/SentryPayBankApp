@@ -2,6 +2,7 @@
 
     import androidx.compose.foundation.background
     import androidx.compose.foundation.border
+    import androidx.compose.foundation.clickable
     import androidx.compose.foundation.layout.*
     import androidx.compose.foundation.lazy.LazyColumn
     import androidx.compose.foundation.lazy.items
@@ -49,7 +50,8 @@
     fun PipelineActivity(
         modifier : Modifier = Modifier,
         onNavigateToHome: () -> Unit = {},
-        viewModel: ServiceViewModel = viewModel()
+        viewModel: ServiceViewModel = viewModel(),
+        onNavigateToPipelineById : (serviceId : String) -> Unit = {}
     ){
         val uiState by viewModel.uiState.collectAsState()
         val neonGreenAccent = Color(0xFF00E676)
@@ -135,6 +137,7 @@
                     // Combines dark base with your alpha cardBackground to make it drop cleanly over the gradient
                     .background(navBarDarkBackground.copy(alpha = 0.6f))
                     .background(cardBackground)
+                    .clickable{onNavigateToPipelineById(item.servicesId)}
                     .border(
                         width = 1.2.dp,
                         brush = Brush.linearGradient(
