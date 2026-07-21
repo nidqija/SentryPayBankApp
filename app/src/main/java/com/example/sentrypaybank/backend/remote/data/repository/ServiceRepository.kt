@@ -4,9 +4,11 @@ package com.example.sentrypaybank.backend.remote.data.repository
 import androidx.compose.runtime.snapshots.SnapshotId
 import com.example.sentrypaybank.backend.remote.data.CancelTransactionRequest
 import com.example.sentrypaybank.backend.remote.data.CancelTransactionResponse
+import com.example.sentrypaybank.backend.remote.data.NewSubscriptionResponse
 import com.example.sentrypaybank.backend.remote.data.SentryPayURLHost
 import com.example.sentrypaybank.backend.remote.data.ServiceSubscriptionResponse
 import com.example.sentrypaybank.backend.remote.data.ServicesResponse
+import com.example.sentrypaybank.backend.remote.data.SubmitTransactionRequest
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -114,6 +116,42 @@ class ServiceRepository(baseURL : String? = null) {
          }
 
 
+    }
+
+
+    suspend fun startServiceSubscription(userIdLong : Long? , serviceIdString : String ): Result<NewSubscriptionResponse>{
+
+        if (userIdLong == null){
+            return Result.failure(Exception("User Id is null"))
+        }
+
+
+
+        return try {
+            val request = SubmitTransactionRequest(
+                userId = userIdLong,
+                serviceId = serviceIdString
+            )
+
+            val response = apiService.startServiceSubscription(
+                userId = userIdLong,
+                serviceId = serviceIdString,
+                request = request
+            )
+
+            val body = response.body()
+
+            if(response.isSuccessful && body != null){
+                Result.success(body)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Cancel failed"
+                Result.failure(Exception("$errorMsg (Status: ${response.code()})"))
+            }
+
+
+        } catch(e : Exception){
+            Result.failure(Exception("Network Error: ${e.localizedMessage}"))
+        }
     }
 
 
