@@ -251,11 +251,16 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
 
             }
 
-            composable("service-details/{subscriptionId}"){
+            composable("service-details/{serviceId}"){
                 backStackEntry ->
                 val targetId = backStackEntry.arguments?.getString("serviceId").orEmpty()
 
-                ViewPipelinetoSubscribeActivity()
+                ViewPipelinetoSubscribeActivity(
+                    serviceId = targetId,
+                    onBackClick = {
+                        nestedNavController.popBackStack()
+                    }
+                )
 
 
             }
