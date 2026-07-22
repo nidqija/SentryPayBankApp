@@ -23,24 +23,76 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sentrypaybank.R
+import com.example.sentrypaybank.backend.remote.data.viewmodel.ServiceLayerState
 import com.example.sentrypaybank.backend.remote.data.viewmodel.ServiceViewModel
 import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
 
 @Composable
 fun ViewPipelinetoSubscribeActivity(
     modifier: Modifier = Modifier,
-    // Replace with your actual item type if passed via navigation/ViewModel
-    serviceName: String = "Sentry Shield Pro",
-    serviceDesc: String = "Complete automated transaction monitoring, anomaly detection, and priority fraud resolution for high-frequency accounts.",
-    servicePrice: Double = 14.99,
-    currency: String = "USD",
+    serviceId: String = "",
     onConfirmSubscribe: (billingCycle: String) -> Unit = {},
     onBackClick: () -> Unit = {},
     viewModel: ServiceViewModel = viewModel()
 ) {
-
     val uiState by viewModel.uiState.collectAsState()
-    // Styling colors aligned with your PipelineActivity theme
+
+    when (val state = uiState) {
+        is ServiceLayerState.Loading -> {
+            Box(
+                modifier = modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color(0xFF00E676))
+            }
+        }
+
+        is ServiceLayerState.Error -> {
+            Box(
+                modifier = modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Failed to load services: ${state.message}",
+                    color = Color.Red,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
+        is ServiceLayerState.Success -> {
+            // Fetch service details from the network response
+            val selectedService = state.data.services.find { it.servicesId == serviceId }
+
+            val fetchedName = selectedService?.serviceName ?: "Unknown Service"
+            val fetchedDesc = selectedService?.serviceDesc ?: "No description available."
+            val fetchedPrice = selectedService?.servicePrice ?: 0.0
+            val fetchedCurrency = selectedService?.currency ?: "USD"
+
+            // Render the screen with dynamically fetched values
+            SubscriptionContent(
+                modifier = modifier,
+                serviceName = fetchedName,
+                serviceDesc = fetchedDesc,
+                servicePrice = fetchedPrice,
+                currency = fetchedCurrency,
+                onConfirmSubscribe = onConfirmSubscribe,
+                onBackClick = onBackClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun SubscriptionContent(
+    modifier: Modifier = Modifier,
+    serviceName: String,
+    serviceDesc: String,
+    servicePrice: Double,
+    currency: String,
+    onConfirmSubscribe: (billingCycle: String) -> Unit,
+    onBackClick: () -> Unit
+) {
     val neonGreenAccent = Color(0xFF00E676)
     val cardBackground = Color(0xFF1F2937).copy(alpha = 0.4f)
     val navBarDarkBackground = Color(0xFF0B0F19)
@@ -58,7 +110,6 @@ fun ViewPipelinetoSubscribeActivity(
         Font(resId = R.font.ibmplexsans_semibold, weight = FontWeight.SemiBold)
     )
 
-    // State for selected billing cycle
     var selectedCycle by remember { mutableStateOf("Monthly") }
 
     Box(
@@ -188,8 +239,8 @@ fun ViewPipelinetoSubscribeActivity(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Annual Option (with discount highlight)
-            val annualPrice = String.format("%.2f", servicePrice * 10) // 2 months free equivalent
+            // Annual Option
+            val annualPrice = String.format("%.2f", servicePrice * 10)
             BillingOptionCard(
                 title = "Annual Billing",
                 subtitle = "Save 16% — Billed yearly",
@@ -224,7 +275,7 @@ fun ViewPipelinetoSubscribeActivity(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Back/Cancel Button
+            // Cancel Button
             TextButton(
                 onClick = onBackClick,
                 modifier = Modifier.fillMaxWidth()
@@ -306,6 +357,13 @@ private fun BillingOptionCard(
 @Composable
 fun ViewPipelinetoSubscribePreview() {
     SentryPayBankTheme {
-        ViewPipelinetoSubscribeActivity()
+        SubscriptionContent(
+            serviceName = "Sentry Shield Pro",
+            serviceDesc = "Complete automated transaction monitoring...",
+            servicePrice = 14.99,
+            currency = "USD",
+            onConfirmSubscribe = {},
+            onBackClick = {}
+        )
     }
 }
