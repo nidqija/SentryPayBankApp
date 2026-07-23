@@ -254,10 +254,16 @@ fun MainDashboardActivity(viewModel: MainViewModel? = null){
             composable("service-details/{serviceId}"){
                 backStackEntry ->
                 val targetId = backStackEntry.arguments?.getString("serviceId").orEmpty()
+                val loggedInUserId = viewModel?.userId ?: 1L
 
                 ViewPipelinetoSubscribeActivity(
                     serviceId = targetId,
+                    userId = loggedInUserId,
                     onBackClick = {
+                        nestedNavController.popBackStack()
+                    },
+                    onConfirmSubscribe = {
+                        // After success, go back to Marketplace or Home
                         nestedNavController.popBackStack()
                     }
                 )

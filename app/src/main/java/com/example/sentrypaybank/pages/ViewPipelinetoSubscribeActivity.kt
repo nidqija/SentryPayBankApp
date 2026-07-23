@@ -31,54 +31,94 @@ import com.example.sentrypaybank.ui.theme.SentryPayBankTheme
 fun ViewPipelinetoSubscribeActivity(
     modifier: Modifier = Modifier,
     serviceId: String = "",
+    userId : Long? = null,
     onConfirmSubscribe: (billingCycle: String) -> Unit = {},
     onBackClick: () -> Unit = {},
     viewModel: ServiceViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var isSubscribing by remember { mutableStateOf(false) }
+    var subscriptionError by remember { mutableStateOf<String?>(null) }
 
-    when (val state = uiState) {
-        is ServiceLayerState.Loading -> {
+    Box(modifier = modifier.fillMaxSize()) {
+        when (val state = uiState) {
+            is ServiceLayerState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color(0xFF00E676))
+                }
+            }
+
+            is ServiceLayerState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Failed to load services: ${state.message}",
+                        color = Color.Red,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            is ServiceLayerState.Success -> {
+                // Fetch service details from the network response
+                val selectedService = state.data.services.find { it.servicesId == serviceId }
+
+                val fetchedName = selectedService?.serviceName ?: "Unknown Service"
+                val fetchedDesc = selectedService?.serviceDesc ?: "No description available."
+                val fetchedPrice = selectedService?.servicePrice ?: 0.0
+                val fetchedCurrency = selectedService?.currency ?: "USD"
+
+                // Render the screen with dynamically fetched values
+                SubscriptionContent(
+                    modifier = Modifier.fillMaxSize(),
+                    serviceName = fetchedName,
+                    serviceDesc = fetchedDesc,
+                    servicePrice = fetchedPrice,
+                    currency = fetchedCurrency,
+                    onConfirmSubscribe = { selectedCycle ->
+                        isSubscribing = true
+                        subscriptionError = null
+                        viewModel.subscribeToService(userId, serviceId) { isSuccess ->
+                            isSubscribing = false
+                            if (isSuccess) {
+                                onConfirmSubscribe(selectedCycle)
+                            } else {
+                                subscriptionError = "Subscription failed. Please try again."
+                            }
+                        }
+                    },
+                    onBackClick = onBackClick
+                )
+            }
+        }
+
+        if (isSubscribing) {
             Box(
-                modifier = modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = Color(0xFF00E676))
             }
         }
 
-        is ServiceLayerState.Error -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+        subscriptionError?.let { error ->
+            Snackbar(
+                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
+                action = {
+                    TextButton(onClick = { subscriptionError = null }) {
+                        Text("Dismiss", color = Color(0xFF00E676))
+                    }
+                }
             ) {
-                Text(
-                    text = "Failed to load services: ${state.message}",
-                    color = Color.Red,
-                    textAlign = TextAlign.Center
-                )
+                Text(error)
             }
-        }
-
-        is ServiceLayerState.Success -> {
-            // Fetch service details from the network response
-            val selectedService = state.data.services.find { it.servicesId == serviceId }
-
-            val fetchedName = selectedService?.serviceName ?: "Unknown Service"
-            val fetchedDesc = selectedService?.serviceDesc ?: "No description available."
-            val fetchedPrice = selectedService?.servicePrice ?: 0.0
-            val fetchedCurrency = selectedService?.currency ?: "USD"
-
-            // Render the screen with dynamically fetched values
-            SubscriptionContent(
-                modifier = modifier,
-                serviceName = fetchedName,
-                serviceDesc = fetchedDesc,
-                servicePrice = fetchedPrice,
-                currency = fetchedCurrency,
-                onConfirmSubscribe = onConfirmSubscribe,
-                onBackClick = onBackClick
-            )
         }
     }
 }
