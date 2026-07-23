@@ -144,7 +144,7 @@ class ServiceRepository(baseURL : String? = null) {
             if(response.isSuccessful && body != null){
                 Result.success(body)
             } else {
-                val errorMsg = response.errorBody()?.string() ?: "Cancel failed"
+                val errorMsg = response.errorBody()?.string() ?: "Subscription failed"
                 Result.failure(Exception("$errorMsg (Status: ${response.code()})"))
             }
 
@@ -157,3 +157,5 @@ class ServiceRepository(baseURL : String? = null) {
 
 
     }
+
+

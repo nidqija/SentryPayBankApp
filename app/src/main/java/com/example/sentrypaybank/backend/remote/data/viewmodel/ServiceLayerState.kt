@@ -69,4 +69,22 @@ class ServiceViewModel(
                 }
         }
     }
+
+
+    // create another layer of abstraction to avoid coupling between repository and view
+    fun subscribeToService(userId : Long? , serviceId : String , onResult : (Boolean) -> Unit){
+        println("ServiceViewModel: Subscribing user $userId to service $serviceId")
+        viewModelScope.launch {
+            val result = serviceRepository.startServiceSubscription(userId , serviceId)
+
+            if(result.isSuccess){
+                println("ServiceViewModel: Subscription success")
+                onResult(true)
+            } else {
+                println("ServiceViewModel: Subscription failed: ${result.exceptionOrNull()?.message}")
+                onResult(false)
+            }
+        }
+    }
 }
+
